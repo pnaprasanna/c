@@ -33,7 +33,7 @@ def md_to_cards(md_file, html_file):
             """
 
         cards_html += f"""
-<a href="{url}" target="_blank" class="card" data-url="{url}">
+<a class="card" href="{url}" target="_blank" data-url="{url}">
   {fields}
   <div class="status">⏳</div>
 </a>
@@ -45,6 +45,9 @@ def md_to_cards(md_file, html_file):
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Service Dashboard</title>
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAMFBMVEUAAAD///8AAABfX1+fn5+Pj4+YmJipqanJycm4uLiLi4vCwsLx8fF79kkpAAAADXRSTlMAEBAgIDAwQEBAUF9w4ZQAAABPSURBVBjTY2CAAUYGBgaGhgZGJmYmRiZWNi4eHiE5OTkFhYWKijYGRk5uDl4+fg4ODR0TEoKKiooKCnqGhoYmJiYGADAD9fAs+n4RS3AAAAAElFTkSuQmCC">
 
 <style>
 :root {{
@@ -72,11 +75,25 @@ body {{
   color: var(--text);
 }}
 
-.header {{
+.top-bar {{
   display: flex;
-  gap: 10px;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
   justify-content: center;
   margin-bottom: 14px;
+}}
+
+.search {{
+  flex: 1;
+  min-width: 200px;
+  max-width: 420px;
+  padding: 7px 9px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 12px;
 }}
 
 .icon-btn {{
@@ -86,19 +103,6 @@ body {{
   cursor: pointer;
   font-size: 16px;
   padding: 6px 9px;
-}}
-
-.search {{
-  display: block;
-  width: 100%;
-  max-width: 420px;
-  margin: 10px auto 16px auto;
-  padding: 7px 9px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  color: var(--text);
-  font-size: 12px;
 }}
 
 .container {{
@@ -122,9 +126,7 @@ body {{
   transform: translateY(-2px);
 }}
 
-.field {{
-  margin-bottom: 6px;
-}}
+.field {{ margin-bottom: 6px; }}
 
 .label {{
   font-size: 10.5px;
@@ -154,7 +156,7 @@ body {{
 }}
 
 @media print {{
-  .header, .search, .status {{ display: none; }}
+  .top-bar, .status {{ display: none; }}
   body {{ background: white; color: black; }}
 }}
 </style>
@@ -162,16 +164,11 @@ body {{
 
 <body>
 
-<div class="header">
+<div class="top-bar">
+  <input class="search" id="searchBox" placeholder="Search..." />
   <button class="icon-btn" id="modeBtn">☀️</button>
   <button class="icon-btn" onclick="window.print()">📄</button>
 </div>
-
-<input
-  class="search"
-  id="searchBox"
-  placeholder="Search..."
-/>
 
 <div class="container" id="cards">
   {cards_html}
@@ -188,7 +185,7 @@ document.getElementById("searchBox").addEventListener("keyup", e => {{
   }});
 }});
 
-// Timestamp + copyright
+// Footer timestamp + copyright
 document.getElementById("footer").textContent =
   new Date().toLocaleString() + " © Monitoring Dashboard";
 
