@@ -33,11 +33,11 @@ def md_to_cards(md_file, html_file):
             """
 
         cards_html += f"""
-        <a href="{url}" target="_blank" class="card" data-url="{url}">
-          {fields}
-          <div class="status">⏳</div>
-        </a>
-        """
+<a href="{url}" target="_blank" class="card" data-url="{url}">
+  {fields}
+  <div class="status">⏳</div>
+</a>
+"""
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -50,47 +50,72 @@ def md_to_cards(md_file, html_file):
 :root {{
   --bg: #121212;
   --card: #1e1e1e;
-  --text: #e0e0e0;
+  --text: #e6e6e6;
   --muted: #9e9e9e;
   --border: #2a2a2a;
+}}
+
+body.light {{
+  --bg: #f7f7f7;
+  --card: #ffffff;
+  --text: #202020;
+  --muted: #6a6a6a;
+  --border: #dcdcdc;
 }}
 
 body {{
   margin: 0;
   padding: 14px;
   font-family: Arial, Helvetica, Verdana, sans-serif;
-  font-size: 13px;
+  font-size: 12.5px;
   background: var(--bg);
   color: var(--text);
 }}
 
+.header {{
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 14px;
+}}
+
+.icon-btn {{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 6px 9px;
+}}
+
 .search {{
+  display: block;
   width: 100%;
   max-width: 420px;
-  margin: 0 auto 16px auto;
-  display: block;
-  padding: 8px 10px;
+  margin: 10px auto 16px auto;
+  padding: 7px 9px;
   border-radius: 6px;
   border: 1px solid var(--border);
   background: var(--card);
   color: var(--text);
+  font-size: 12px;
 }}
 
 .container {{
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
+  gap: 13px;
 }}
 
 .card {{
   background: var(--card);
   border-radius: 10px;
-  padding: 14px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
   text-decoration: none;
   color: var(--text);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
   position: relative;
-  border: 1px solid var(--border);
 }}
 
 .card:hover {{
@@ -98,11 +123,11 @@ body {{
 }}
 
 .field {{
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }}
 
 .label {{
-  font-size: 11px;
+  font-size: 10.5px;
   color: var(--muted);
 }}
 
@@ -113,30 +138,39 @@ body {{
 
 .status {{
   position: absolute;
-  top: 10px;
-  right: 12px;
-  font-size: 16px;
+  top: 8px;
+  right: 10px;
+  font-size: 15px;
 }}
 
-.ok {{ color: #3cb371; }}
-.fail {{ color: #e05555; }}
+.ok {{ color: #48c774; }}
+.fail {{ color: #f14668; }}
 
 .footer {{
   margin-top: 18px;
   text-align: center;
-  font-size: 11px;
+  font-size: 10.5px;
   color: var(--muted);
+}}
+
+@media print {{
+  .header, .search, .status {{ display: none; }}
+  body {{ background: white; color: black; }}
 }}
 </style>
 </head>
 
 <body>
 
+<div class="header">
+  <button class="icon-btn" id="modeBtn">☀️</button>
+  <button class="icon-btn" onclick="window.print()">📄</button>
+</div>
+
 <input
-  type="text"
   class="search"
-  placeholder="Search..."
   id="searchBox"
+  placeholder="Search..."
 />
 
 <div class="container" id="cards">
@@ -147,19 +181,27 @@ body {{
 
 <script>
 // Search
-const searchBox = document.getElementById("searchBox");
-searchBox.addEventListener("keyup", () => {{
-  const q = searchBox.value.toLowerCase();
-  document.querySelectorAll(".card").forEach(card => {{
-    card.style.display = card.innerText.toLowerCase().includes(q) ? "" : "none";
+document.getElementById("searchBox").addEventListener("keyup", e => {{
+  const q = e.target.value.toLowerCase();
+  document.querySelectorAll(".card").forEach(c => {{
+    c.style.display = c.innerText.toLowerCase().includes(q) ? "" : "none";
   }});
 }});
 
 // Timestamp + copyright
 document.getElementById("footer").textContent =
-  new Date().toLocaleString() + " © Service Dashboard";
+  new Date().toLocaleString() + " © Monitoring Dashboard";
 
-// Status check
+// Dark / Light toggle
+const body = document.body;
+const btn = document.getElementById("modeBtn");
+
+btn.onclick = () => {{
+  body.classList.toggle("light");
+  btn.textContent = body.classList.contains("light") ? "🌙" : "☀️";
+}};
+
+// URL status check
 document.querySelectorAll(".card").forEach(card => {{
   const status = card.querySelector(".status");
   const url = card.dataset.url;
