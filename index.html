@@ -25,10 +25,18 @@ body {
   color: var(--text);
 }
 
+body.light {
+  --bg: #f5f5f5;
+  --card: #ffffff;
+  --text: #222222;
+  --muted: #666666;
+  --border: #dddddd;
+}
+
 .topbar {
   display: flex;
-  gap: 10px;
   align-items: center;
+  gap: 10px;
   margin-bottom: 12px;
 }
 
@@ -45,9 +53,14 @@ body {
 .tools {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 11px;
+  gap: 10px;
+  font-size: 14px;
   color: var(--muted);
+}
+
+.tools span {
+  cursor: pointer;
+  user-select: none;
 }
 
 .container {
@@ -104,12 +117,13 @@ body {
 </style>
 </head>
 
-<body>
+<body class="dark">
 
 <div class="topbar">
   <input type="text" class="search" placeholder="Search..." id="searchBox">
   <div class="tools">
-    <span onclick="window.print()">🖨</span>
+    <span id="themeToggle" title="Toggle theme">🌙</span>
+    <span onclick="window.print()" title="Print">🖨</span>
     <span id="countdown">05:00</span>
   </div>
 </div>
@@ -221,9 +235,10 @@ body {
 <div class="footer" id="footer"></div>
 
 <script>
-const REFRESH_INTERVAL = 300;
+const REFRESH_INTERVAL = 300; // seconds
 let remaining = REFRESH_INTERVAL;
 
+/* Search */
 document.getElementById("searchBox").addEventListener("keyup", e => {
   const q = e.target.value.toLowerCase();
   document.querySelectorAll(".card").forEach(card => {
@@ -231,11 +246,22 @@ document.getElementById("searchBox").addEventListener("keyup", e => {
   });
 });
 
+/* Theme toggle */
+const body = document.body;
+const themeBtn = document.getElementById("themeToggle");
+
+themeBtn.onclick = () => {
+  body.classList.toggle("light");
+  themeBtn.textContent = body.classList.contains("light") ? "☀️" : "🌙";
+};
+
+/* Footer timestamp */
 function updateFooter() {
   document.getElementById("footer").textContent =
     new Date().toLocaleString() + " © Service Dashboard";
 }
 
+/* Status check */
 function checkStatuses() {
   document.querySelectorAll(".card").forEach(card => {
     const status = card.querySelector(".status");
@@ -257,6 +283,7 @@ function checkStatuses() {
   updateFooter();
 }
 
+/* Countdown */
 function tick() {
   remaining--;
   if (remaining <= 0) {
@@ -268,6 +295,7 @@ function tick() {
   document.getElementById("countdown").textContent = `${m}:${s}`;
 }
 
+/* Init */
 checkStatuses();
 setInterval(tick, 1000);
 </script>
