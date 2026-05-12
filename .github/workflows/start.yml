@@ -1,6 +1,9 @@
 name: Build Static Page
 
 on:
+  push:
+    paths:
+      - bm.md
   schedule:
     - cron: '*/30 * * * *'
   workflow_dispatch:
