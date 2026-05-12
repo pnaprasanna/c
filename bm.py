@@ -189,7 +189,7 @@ body.light {
 
 <div id="auth">
   <div class="auth-box">
-    <div>Enter Password</div>
+    <div>Password</div>
     <input type="password" id="pwd" />
   </div>
 </div>
