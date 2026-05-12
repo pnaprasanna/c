@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="fav.svg">
 <title>Service Dashboard</title>
 
 <style>
@@ -53,14 +52,8 @@ body.light {
 
 .tools {
   display: flex;
-  align-items: center;
   gap: 10px;
   font-size: 14px;
-  color: var(--muted);
-}
-
-.tools span {
-  cursor: pointer;
 }
 
 .container {
@@ -115,7 +108,7 @@ body.light {
   color: var(--muted);
 }
 
-/* Password overlay */
+/* Auth overlay */
 #auth {
   position: fixed;
   inset: 0;
@@ -309,12 +302,22 @@ body.light {
 </div>
 
 <script>
-const PASSWORD = "changeme"; // 🔐 CHANGE THIS
+const PASSWORD_HASH = "e7e413b20ccdbbf5b89577eb35ccff413f3a7649ae3cc45f3802d9f58ad85a8a";
 
-/* Password check */
-document.getElementById("pwd").addEventListener("keyup", e => {
+/* SHA-256 */
+async function sha256(text) {
+  const data = new TextEncoder().encode(text);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash))
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/* Auth */
+document.getElementById("pwd").addEventListener("keyup", async e => {
   if (e.key === "Enter") {
-    if (e.target.value === PASSWORD) {
+    const inputHash = await sha256(e.target.value);
+    if (inputHash === PASSWORD_HASH) {
       document.getElementById("auth").style.display = "none";
       document.getElementById("app").style.display = "block";
       checkStatuses();
@@ -348,7 +351,7 @@ function updateFooter() {
     new Date().toLocaleString() + " © Service Dashboard";
 }
 
-/* Status check (single run) */
+/* Status check */
 function checkStatuses() {
   document.querySelectorAll(".card").forEach(card => {
     const status = card.querySelector(".status");
