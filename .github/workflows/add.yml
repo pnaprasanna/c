@@ -32,11 +32,7 @@ jobs:
 
       - name: Add record
         run: |
-          python add.py \
-            "${{ inputs.info }}" \
-            "${{ inputs.url }}" \
-            "${{ inputs.explanation }}" \
-            "${{ inputs.tags }}"
+          python add.py "${{ inputs.info }}" "${{ inputs.url }}" "${{ inputs.explanation }}" "${{ inputs.tags }}
 
       - name: Commit & push
         run: |
