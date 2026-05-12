@@ -35,7 +35,7 @@ jobs:
           INFO: ${{ inputs.info }}
           URL: ${{ inputs.url }}
           EXPLANATION: ${{ inputs.explanation }}
-          TAGS: ${{ inputs.tags }
+          TAGS: ${{ inputs.tags }}
         run: |
           python add.py
 
