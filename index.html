@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="fav.svg">   
 <title>Service Dashboard</title>
 
 <style>
@@ -61,7 +60,6 @@ body.light {
 
 .tools span {
   cursor: pointer;
-  user-select: none;
 }
 
 .container {
@@ -115,21 +113,53 @@ body.light {
   font-size: 11px;
   color: var(--muted);
 }
+
+/* Password overlay */
+#auth {
+  position: fixed;
+  inset: 0;
+  background: #000000ee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.auth-box {
+  background: #1e1e1e;
+  padding: 24px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.auth-box input {
+  margin-top: 12px;
+  padding: 8px;
+  width: 200px;
+}
 </style>
 </head>
 
-<body class="dark">
+<body>
+
+<div id="auth">
+  <div class="auth-box">
+    <div>Enter Password</div>
+    <input type="password" id="pwd" />
+  </div>
+</div>
+
+<div id="app" style="display:none;">
 
 <div class="topbar">
   <input type="text" class="search" placeholder="Search..." id="searchBox">
   <div class="tools">
-    <span id="themeToggle" title="Toggle theme">🌙</span>
-    <span onclick="window.print()" title="Print">🖨</span>
-    <span id="countdown">05:00</span>
+    <span id="themeToggle">🌙</span>
+    <span onclick="window.print()">🖨</span>
   </div>
 </div>
 
-<div class="container" id="cards">
+<div class="container">
 
 <a class="card" href="https://docs.python.org" target="_blank" data-url="https://docs.python.org">
   
@@ -275,9 +305,24 @@ body.light {
 
 <div class="footer" id="footer"></div>
 
+</div>
+
 <script>
-const REFRESH_INTERVAL = 300; // seconds
-let remaining = REFRESH_INTERVAL;
+const PASSWORD = "changeme"; // 🔐 CHANGE THIS
+
+/* Password check */
+document.getElementById("pwd").addEventListener("keyup", e => {
+  if (e.key === "Enter") {
+    if (e.target.value === PASSWORD) {
+      document.getElementById("auth").style.display = "none";
+      document.getElementById("app").style.display = "block";
+      checkStatuses();
+      updateFooter();
+    } else {
+      alert("Incorrect password");
+    }
+  }
+});
 
 /* Search */
 document.getElementById("searchBox").addEventListener("keyup", e => {
@@ -296,20 +341,17 @@ themeBtn.onclick = () => {
   themeBtn.textContent = body.classList.contains("light") ? "☀️" : "🌙";
 };
 
-/* Footer timestamp */
+/* Footer */
 function updateFooter() {
   document.getElementById("footer").textContent =
     new Date().toLocaleString() + " © Service Dashboard";
 }
 
-/* Status check */
+/* Status check (single run) */
 function checkStatuses() {
   document.querySelectorAll(".card").forEach(card => {
     const status = card.querySelector(".status");
     const url = card.dataset.url;
-
-    status.textContent = "⏳";
-    status.className = "status";
 
     fetch(url, { method: "HEAD", mode: "no-cors" })
       .then(() => {
@@ -321,24 +363,7 @@ function checkStatuses() {
         status.classList.add("fail");
       });
   });
-  updateFooter();
 }
-
-/* Countdown */
-function tick() {
-  remaining--;
-  if (remaining <= 0) {
-    remaining = REFRESH_INTERVAL;
-    checkStatuses();
-  }
-  const m = String(Math.floor(remaining / 60)).padStart(2, "0");
-  const s = String(remaining % 60).padStart(2, "0");
-  document.getElementById("countdown").textContent = `${m}:${s}`;
-}
-
-/* Init */
-checkStatuses();
-setInterval(tick, 1000);
 </script>
 
 </body>
