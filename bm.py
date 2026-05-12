@@ -33,11 +33,11 @@ def md_to_cards(md_file, html_file):
             """
 
         cards_html += f"""
-        <a class="card" href="{url}" target="_blank" data-url="{url}">
-          {fields_html}
-          <div class="status">⏳</div>
-        </a>
-        """
+<a class="card" href="{url}" target="_blank" data-url="{url}">
+  {fields_html}
+  <div class="status">⏳</div>
+</a>
+"""
 
     html_template = """<!DOCTYPE html>
 <html lang="en">
@@ -68,9 +68,9 @@ body {
 
 .topbar {
   display: flex;
-  justify-content: space-between;
+  gap: 10px;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .search {
@@ -89,10 +89,6 @@ body {
   gap: 8px;
   font-size: 11px;
   color: var(--muted);
-}
-
-.tools span {
-  cursor: pointer;
 }
 
 .container {
@@ -166,10 +162,9 @@ __CARDS__
 <div class="footer" id="footer"></div>
 
 <script>
-const REFRESH_INTERVAL = 5 * 60; // seconds
+const REFRESH_INTERVAL = 300;
 let remaining = REFRESH_INTERVAL;
 
-/* Search */
 document.getElementById("searchBox").addEventListener("keyup", e => {
   const q = e.target.value.toLowerCase();
   document.querySelectorAll(".card").forEach(card => {
@@ -177,13 +172,11 @@ document.getElementById("searchBox").addEventListener("keyup", e => {
   });
 });
 
-/* Footer timestamp */
 function updateFooter() {
   document.getElementById("footer").textContent =
     new Date().toLocaleString() + " © Service Dashboard";
 }
 
-/* Status check */
 function checkStatuses() {
   document.querySelectorAll(".card").forEach(card => {
     const status = card.querySelector(".status");
@@ -202,11 +195,9 @@ function checkStatuses() {
         status.classList.add("fail");
       });
   });
-
   updateFooter();
 }
 
-/* Countdown timer */
 function tick() {
   remaining--;
   if (remaining <= 0) {
@@ -218,7 +209,6 @@ function tick() {
   document.getElementById("countdown").textContent = `${m}:${s}`;
 }
 
-/* Init */
 checkStatuses();
 setInterval(tick, 1000);
 </script>
@@ -232,9 +222,8 @@ setInterval(tick, 1000);
     with open(html_file, "w", encoding="utf-8") as f:
         f.write(html_final)
 
-    print("✅ index.html generated successfully with countdown timer")
+    print("✅ index.html generated successfully")
 
 
 # Usage
 md_to_cards("bm.md", "index.html")
-``
