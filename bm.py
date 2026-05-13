@@ -43,7 +43,7 @@ def md_to_cards(md_file, html_file):
                 tick_html = '<span class="status status-inline">⏳</span>'
 
                 copy_html = f'''
-                <span class="copy-btn" onclick="copyUrl(event, '{url}')">
+                <span class="copy-btn" title="COPY" onclick="copyUrl(event,'{url}', this)">
                   <svg viewBox="0 0 24 24">
                     <rect x="9" y="9" width="10" height="10" rx="2" fill="currentColor"></rect>
                     <rect x="5" y="5" width="10" height="10" rx="2"
@@ -51,7 +51,6 @@ def md_to_cards(md_file, html_file):
                   </svg>
                 </span>
                 '''
-
                 first = False
 
             fields_html += f"""
@@ -74,6 +73,7 @@ def md_to_cards(md_file, html_file):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="fav.svg">
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <title>Service Dashboard</title>
 
@@ -90,8 +90,9 @@ def md_to_cards(md_file, html_file):
 
 body {
   margin:0;
-  padding:14px;
-  font-family: Arial, Helvetica, Verdana, sans-serif;
+  padding:12px;
+  font-family: Arial, Helvetica, sans-serif; /* ✅ web safe */
+  font-size:12px; /* ✅ smaller */
   background:var(--bg);
   color:var(--text);
 }
@@ -104,47 +105,44 @@ body.light {
   --border:#ddd;
 }
 
-.topbar {
-  display:flex;
-  gap:10px;
-  margin-bottom:12px;
-}
+.topbar { display:flex; gap:8px; margin-bottom:10px; }
 
 .search {
   flex:1;
-  padding:8px;
+  padding:6px;
   background:var(--card);
   border:1px solid var(--border);
   color:var(--text);
 }
 
-.tools { display:flex; gap:10px; }
+.tools { display:flex; gap:8px; }
 
 .container {
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-  gap:12px;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:10px;
 }
 
+/* Cards */
 .card {
   background:var(--card);
   border:1px solid var(--border);
-  border-radius:10px;
-  padding:10px;
+  border-radius:8px;
+  padding:8px;
   text-decoration:none;
   color:var(--text);
 }
 
-/* ✅ compact */
-.field { margin-bottom:6px; }
-.label { font-size:10px; color:var(--muted); }
+/* Compact */
+.field { margin-bottom:4px; }
+.label { font-size:9px; color:var(--muted); }
 .value { font-weight:600; }
 
-/* ✅ Tick + Copy icon */
+/* Tick + Copy */
 .status-inline,
 .copy-btn {
-  width:15px;
-  height:15px;
+  width:16px;
+  height:16px;
   display:inline-flex;
   align-items:center;
   justify-content:center;
@@ -156,23 +154,38 @@ body.light {
 .copy-btn {
   color:#888;
   opacity:0;
-  transition:0.2s;
+  transition:all .2s;
+  cursor:pointer;
 }
 .copy-btn svg {
-  width:12px;
-  height:12px;
+  width:14px; /* ✅ bigger */
+  height:14px;
 }
 
-/* Show only on hover */
 .card:hover .copy-btn { opacity:1; }
 
 .copy-btn:hover {
-  color:white;
-  transform:scale(1.1);
+  color:#fff;
+  transform:scale(1.15);
 }
 
-.copy-btn.copied {
+/* ✅ Morph animation */
+.copy-btn.copied svg {
+  display:none;
+}
+
+.copy-btn.copied::after {
+  content:"✓";
   color:#2ea44f;
+  font-size:12px;
+  animation:pulse .4s ease;
+}
+
+/* ✅ pulse */
+@keyframes pulse {
+  0% { transform:scale(.6); opacity:0; }
+  50% { transform:scale(1.2); }
+  100% { transform:scale(1); opacity:1; }
 }
 
 /* ✅ Tick */
@@ -229,7 +242,7 @@ Password<br>
 __CARDS__
 </div>
 
-<div style="text-align:center;font-size:10px;color:gray;margin-top:12px;">
+<div style="text-align:center;font-size:9px;color:gray;margin-top:10px;">
 © Service Dashboard
 </div>
 
@@ -239,48 +252,39 @@ __CARDS__
 
 const PASSWORD_HASH="__PASSWORD_HASH__";
 
-/* ✅ COPY FUNCTION (robust) */
-function copyUrl(e,url){
- e.preventDefault();
- e.stopPropagation();
+/* ✅ COPY */
+function copyUrl(e,url,el){
+ e.preventDefault(); e.stopPropagation();
 
  if(navigator.clipboard && window.isSecureContext){
-  navigator.clipboard.writeText(url)
-   .then(()=>showCopy(e))
-   .catch(()=>fallback(url,e));
- } else fallback(url,e);
+  navigator.clipboard.writeText(url).then(()=>animate(el));
+ } else {
+  const ta=document.createElement("textarea");
+  ta.value=url; document.body.appendChild(ta);
+  ta.select(); document.execCommand("copy");
+  ta.remove(); animate(el);
+ }
 }
 
-function fallback(text,e){
- const ta=document.createElement("textarea");
- ta.value=text;
- document.body.appendChild(ta);
- ta.select();
- document.execCommand("copy");
- ta.remove();
- showCopy(e);
-}
-
-function showCopy(e){
- const btn=e.currentTarget;
- btn.classList.add("copied");
- setTimeout(()=>btn.classList.remove("copied"),800);
+function animate(el){
+ el.classList.add("copied");
+ setTimeout(()=>el.classList.remove("copied"),800);
 }
 
 /* AUTH */
-pwd.addEventListener("keyup",async e=>{
+pwd.onkeyup=async e=>{
  if(e.key==="Enter"){
-  const data=new TextEncoder().encode(pwd.value);
-  const hash=await crypto.subtle.digest("SHA-256",data);
-  const hex=[...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,"0")).join("");
+  let d=new TextEncoder().encode(pwd.value);
+  let h=await crypto.subtle.digest("SHA-256",d);
+  let hex=[...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,"0")).join("");
   if(hex===PASSWORD_HASH){
-   auth.style.display="none";
-   app.style.display="block";
-   checkStatuses();
-   startTimer();
+    auth.style.display="none";
+    app.style.display="block";
+    checkStatuses();
+    start();
   } else alert("Wrong password");
  }
-});
+};
 
 /* Theme */
 themeToggle.onclick=()=>document.body.classList.toggle("light");
@@ -293,7 +297,7 @@ searchBox.onkeyup=e=>{
  });
 };
 
-/* STATUS */
+/* Status */
 function checkStatuses(){
  document.querySelectorAll(".card").forEach(c=>{
   let s=c.querySelector(".status-inline");
@@ -337,7 +341,7 @@ function reset(){ clearTimeout(t);
  },300000);
 }
 ["mousemove","keydown","click","scroll"].forEach(e=>document.addEventListener(e,reset));
-function startTimer(){reset();}
+function start(){reset();}
 </script>
 
 </body>
