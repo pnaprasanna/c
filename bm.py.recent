@@ -61,6 +61,7 @@ def md_to_cards(md_file, html_file):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="fav.svg">
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <title>Service Dashboard</title>
 
@@ -165,7 +166,14 @@ body.light {
 .ok { color: #3b82f6; }
 .fail { color: var(--fail); }
 
-/* AUTH */
+.footer {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* ✅ AUTH OVERLAY */
 #auth {
   position: fixed;
   inset: 0;
@@ -193,6 +201,7 @@ body.light {
 
 <body>
 
+<!-- ✅ PASSWORD SCREEN -->
 <div id="auth">
   <div class="auth-box">
     <div>Password</div>
@@ -200,6 +209,7 @@ body.light {
   </div>
 </div>
 
+<!-- ✅ APP (hidden until login) -->
 <div id="app" style="display:none;">
 
 <div class="topbar">
@@ -216,13 +226,15 @@ body.light {
 __CARDS__
 </div>
 
+<div class="footer" id="footer"></div>
+
 </div>
 
 <script>
 
 const PASSWORD_HASH = "__PASSWORD_HASH__";
 
-/* SHA256 */
+/* SHA-256 */
 async function sha256(text) {
   const data = new TextEncoder().encode(text);
   const hash = await crypto.subtle.digest("SHA-256", data);
@@ -231,7 +243,7 @@ async function sha256(text) {
     .join("");
 }
 
-/* AUTH */
+/* ✅ AUTH LOGIN */
 document.getElementById("pwd").addEventListener("keyup", async e => {
   if (e.key === "Enter") {
     const inputHash = await sha256(e.target.value);
@@ -239,16 +251,17 @@ document.getElementById("pwd").addEventListener("keyup", async e => {
       document.getElementById("auth").style.display = "none";
       document.getElementById("app").style.display = "block";
       checkStatuses();
-      startInactivityTracking();  // ✅ start tracking
+      updateFooter();
     } else {
       alert("Incorrect password");
     }
   }
 });
 
-/* Theme */
+/* Theme toggle */
+const body = document.body;
 document.getElementById("themeToggle").onclick = () => {
-  document.body.classList.toggle("light");
+  body.classList.toggle("light");
 };
 
 /* Search */
@@ -294,7 +307,13 @@ function exportToExcel() {
   XLSX.writeFile(wb, "dashboard.xlsx");
 }
 
-/* Status */
+/* Footer */
+function updateFooter() {
+  document.getElementById("footer").textContent =
+    new Date().toLocaleString() + " © Service Dashboard";
+}
+
+/* Status check */
 function checkStatuses() {
   document.querySelectorAll(".card").forEach(card => {
     const status = card.querySelector(".status-inline");
@@ -311,28 +330,6 @@ function checkStatuses() {
       });
   });
 }
-
-/* ✅ INACTIVITY LOCK */
-let inactivityTimer;
-const INACTIVITY_LIMIT = 5 * 60 * 1000;
-
-function resetInactivityTimer() {
-  clearTimeout(inactivityTimer);
-  inactivityTimer = setTimeout(() => {
-    document.getElementById("app").style.display = "none";
-    document.getElementById("auth").style.display = "flex";
-    document.getElementById("pwd").value = "";
-  }, INACTIVITY_LIMIT);
-}
-
-["mousemove","keydown","scroll","click"].forEach(e=>{
-  document.addEventListener(e, resetInactivityTimer);
-});
-
-function startInactivityTracking() {
-  resetInactivityTimer();
-}
-
 </script>
 
 </body>
