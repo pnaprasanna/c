@@ -173,10 +173,48 @@ body.light {
   padding: 8px;
   width: 200px;
 }
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -240px;
+  width: 220px;
+  height: 100%;
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  padding: 16px;
+  transition: left 0.25s ease;
+  z-index: 1000;
+}
+
+.sidebar.active {
+  left: 0;
+}
+
+.sidebar a {
+  display: block;
+  margin: 12px 0;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.menu-btn {
+  cursor: pointer;
+  font-size: 18px;
+}
+
 </style>
 </head>
 
 <body>
+<span class="menu-btn" onclick="toggleMenu()">☰</span>
+<div id="sidebar" class="sidebar">
+  <a href="#">🏠 Home</a>
+  <a href="#">📊 Dashboard</a>
+  <a href="#">📁 Projects</a>
+  <a href="#">⚙ Settings</a>
+</div>
 
 <div id="auth">
   <div class="auth-box">
@@ -508,6 +546,10 @@ function checkStatuses() {
         status.classList.add("fail");
       });
   });
+}
+
+function toggleMenu() {
+  document.getElementById("sidebar").classList.toggle("active");
 }
 </script>
 
