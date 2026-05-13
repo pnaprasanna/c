@@ -40,7 +40,6 @@ def md_to_cards(md_file, html_file):
             </div>
             """
 
-        # URL + inline status
         fields_html += f"""
         <div class="field">
           <div class="label">URL</div>
@@ -61,8 +60,8 @@ def md_to_cards(md_file, html_file):
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/png" href="fav.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="fav.svg">
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <title>Service Dashboard</title>
 
@@ -111,7 +110,6 @@ body.light {
   color: var(--text);
 }
 
-/* ✅ buttons */
 .tools {
   display: flex;
   gap: 10px;
@@ -125,7 +123,6 @@ body.light {
   gap: 14px;
 }
 
-/* Cards */
 .card {
   background: var(--card);
   border-radius: 12px;
@@ -154,30 +151,17 @@ body.light {
   animation: neonPulse 1.6s ease-in-out infinite;
 }
 
-.field {
-  margin-bottom: 8px;
-}
+.field { margin-bottom: 8px; }
+.label { font-size: 11px; color: var(--muted); }
+.value { font-weight: 600; word-break: break-word; }
 
-.label {
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.value {
-  font-weight: 600;
-  word-break: break-word;
-}
-
-/* URL + tick */
 .url-line {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.status-inline {
-  font-size: 14px;
-}
+.status-inline { font-size: 14px; }
 
 .ok { color: #3b82f6; }
 .fail { color: var(--fail); }
@@ -188,10 +172,45 @@ body.light {
   font-size: 11px;
   color: var(--muted);
 }
+
+/* ✅ AUTH OVERLAY */
+#auth {
+  position: fixed;
+  inset: 0;
+  background: #000000ee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.auth-box {
+  background: #1e1e1e;
+  padding: 24px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.auth-box input {
+  margin-top: 12px;
+  padding: 8px;
+  width: 200px;
+}
 </style>
 </head>
 
 <body>
+
+<!-- ✅ PASSWORD SCREEN -->
+<div id="auth">
+  <div class="auth-box">
+    <div>Password</div>
+    <input type="password" id="pwd" autofocus />
+  </div>
+</div>
+
+<!-- ✅ APP (hidden until login) -->
+<div id="app" style="display:none;">
 
 <div class="topbar">
   <input type="text" class="search" placeholder="Search..." id="searchBox">
@@ -209,15 +228,40 @@ __CARDS__
 
 <div class="footer" id="footer"></div>
 
+</div>
+
 <script>
+
+const PASSWORD_HASH = "__PASSWORD_HASH__";
+
+/* SHA-256 */
+async function sha256(text) {
+  const data = new TextEncoder().encode(text);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash))
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/* ✅ AUTH LOGIN */
+document.getElementById("pwd").addEventListener("keyup", async e => {
+  if (e.key === "Enter") {
+    const inputHash = await sha256(e.target.value);
+    if (inputHash === PASSWORD_HASH) {
+      document.getElementById("auth").style.display = "none";
+      document.getElementById("app").style.display = "block";
+      checkStatuses();
+      updateFooter();
+    } else {
+      alert("Incorrect password");
+    }
+  }
+});
 
 /* Theme toggle */
 const body = document.body;
-const themeBtn = document.getElementById("themeToggle");
-
-themeBtn.onclick = () => {
+document.getElementById("themeToggle").onclick = () => {
   body.classList.toggle("light");
-  themeBtn.textContent = body.classList.contains("light") ? "☀️" : "🌙";
 };
 
 /* Search */
@@ -228,7 +272,7 @@ document.getElementById("searchBox").addEventListener("keyup", e => {
   });
 });
 
-/* Excel export */
+/* Excel */
 function exportToExcel() {
   let data = [];
   let headersSet = new Set();
@@ -252,7 +296,6 @@ function exportToExcel() {
   });
 
   const headers = Array.from(headersSet);
-
   const sheetData = [
     headers,
     ...data.map(r => headers.map(h => r[h] || ""))
@@ -260,15 +303,15 @@ function exportToExcel() {
 
   const ws = XLSX.utils.aoa_to_sheet(sheetData);
   const wb = XLSX.utils.book_new();
-
   XLSX.utils.book_append_sheet(wb, ws, "Dashboard");
-
   XLSX.writeFile(wb, "dashboard.xlsx");
 }
 
 /* Footer */
-document.getElementById("footer").textContent =
-  new Date().toLocaleString() + " © Service Dashboard";
+function updateFooter() {
+  document.getElementById("footer").textContent =
+    new Date().toLocaleString() + " © Service Dashboard";
+}
 
 /* Status check */
 function checkStatuses() {
@@ -287,8 +330,6 @@ function checkStatuses() {
       });
   });
 }
-
-checkStatuses();
 </script>
 
 </body>
