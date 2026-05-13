@@ -374,4 +374,3 @@ function startInactivityTracking() {
 
 
 md_to_cards("bm.md", "index.html")
-``
