@@ -1,3 +1,5 @@
+# Python part unchanged...
+
 import os
 import hashlib
 import markdown
@@ -37,7 +39,6 @@ def md_to_cards(md_file, html_file):
                 continue
 
             tick_html = ""
-
             if first:
                 tick_html = '<span class="status status-inline">⏳</span>'
                 first = False
@@ -80,12 +81,43 @@ body {
   color:var(--text);
 }
 
-/* ✅ Layout */
-.layout {
-  display:flex;
+/* ✅ LIGHT MODE */
+body.light {
+  --bg:#f5f5f5;
+  --card:#ffffff;
+  --text:#222222;
+  --muted:#666666;
+  --border:#dddddd;
 }
 
-/* ✅ Sidebar */
+/* ✅ PRINT CLEAN VIEW */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .container, .container * {
+    visibility: visible;
+  }
+
+  .container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+
+  .card {
+    page-break-inside: avoid;
+    border:1px solid #ccc;
+    box-shadow:none;
+  }
+}
+
+/* Layout */
+.layout { display:flex; }
+
+/* Sidebar */
 .sidebar {
   width:0;
   overflow:hidden;
@@ -93,58 +125,32 @@ body {
   background:var(--card);
   border-right:1px solid var(--border);
 }
+.sidebar.active { width:180px; padding:10px; }
 
-.sidebar.active {
-  width:180px;
-  padding:10px;
-}
+/* Main */
+.main { flex:1; padding:12px; }
 
-.sidebar a {
-  display:block;
-  margin:10px 0;
-  color:var(--text);
-  text-decoration:none;
-}
-
-/* ✅ Main */
-.main {
-  flex:1;
-  padding:12px;
-}
-
-/* ✅ Topbar */
+/* Topbar */
 .topbar {
   display:flex;
-  align-items:center;
   gap:6px;
   margin-bottom:10px;
-  flex-wrap:wrap; /* ✅ responsive */
+  flex-wrap:wrap;
 }
 
-.menu {
-  cursor:pointer;
-  font-size:16px;
-}
+.menu { cursor:pointer; }
 
 .search {
   flex:1;
   padding:6px;
-  min-width:150px;
   background:var(--card);
   border:1px solid var(--border);
   color:var(--text);
 }
 
-.tools {
-  display:flex;
-  gap:6px;
-}
+.tools span { cursor:pointer; margin-left:6px; }
 
-.tools span {
-  cursor:pointer;
-}
-
-/* ✅ Cards */
+/* Cards */
 .container {
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
@@ -155,71 +161,35 @@ body {
   background:var(--card);
   border-radius:10px;
   padding:10px;
+  border:1px solid var(--border);
   text-decoration:none;
   color:var(--text);
-  border:1px solid var(--border);
-  transition:0.2s;
 }
 
-/* ✅ AI effect */
 .card:hover {
   transform:translateY(-4px);
-  box-shadow:
-    0 6px 20px rgba(0,0,0,0.6),
-    0 0 12px rgba(0,255,200,0.25);
+  box-shadow:0 8px 20px rgba(0,0,0,0.6);
 }
 
-/* Fields */
 .field { margin-bottom:4px; }
 .label { font-size:9px; color:var(--muted); }
 .value { font-weight:600; }
 
-/* ✅ status */
+/* Status */
 .status-inline {
-  width:16px;
-  height:16px;
+  margin-left:6px;
+  width:14px;
+  height:14px;
   display:inline-flex;
   align-items:center;
   justify-content:center;
   border-radius:50%;
-  margin-left:6px;
-  font-size:10px;
 }
 
-@keyframes tickPop {
-  0% {transform:scale(.5);opacity:0}
-  60% {transform:scale(1.2);opacity:1}
-  100% {transform:scale(1)}
-}
+.ok { background:#2ea44f; color:white; }
+.fail { background:#e5533d; color:white; }
 
-.ok {
-  background:#2ea44f;
-  color:white;
-  animation:tickPop 0.3s ease-out;
-}
-
-.fail {
-  background:#e5533d;
-  color:white;
-}
-
-/* ✅ Mobile responsiveness */
-@media (max-width: 768px) {
-  .sidebar.active {
-    width:140px;
-  }
-
-  .topbar {
-    flex-direction:row;
-    flex-wrap:wrap;
-  }
-
-  .container {
-    grid-template-columns:1fr;
-  }
-}
-
-/* ✅ Auth */
+/* Auth */
 #auth {
   position:fixed;
   inset:0;
@@ -245,9 +215,9 @@ Password<br>
 <div class="layout">
 
 <div class="sidebar" id="sidebar">
-  <a href="#">🏠 Home</a>
-  <a href="#">📊 Dashboard</a>
-  <a href="#">⚙ Settings</a>
+  Home<br>
+  Dashboard<br>
+  Settings
 </div>
 
 <div class="main">
@@ -267,22 +237,27 @@ Password<br>
 __CARDS__
 </div>
 
-<div style="text-align:center;font-size:9px;color:gray;margin-top:10px;">
-© Service Dashboard
-</div>
-
 </div>
 </div>
 </div>
 
 <script>
 
-/* Menu */
 function toggleMenu(){
  document.getElementById("sidebar").classList.toggle("active");
 }
 
-/* Auth */
+/* ✅ FIXED THEME TOGGLE */
+const themeBtn = document.getElementById("themeToggle");
+
+themeBtn.onclick = () => {
+  document.body.classList.toggle("light");
+
+  themeBtn.textContent =
+    document.body.classList.contains("light") ? "☀️" : "🌙";
+};
+
+/* AUTH */
 pwd.onkeyup=async e=>{
  if(e.key==="Enter"){
   let d=new TextEncoder().encode(pwd.value);
@@ -295,9 +270,6 @@ pwd.onkeyup=async e=>{
   } else alert("Wrong password");
  }
 };
-
-/* Theme */
-themeToggle.onclick=()=>document.body.classList.toggle("light");
 
 /* Search */
 searchBox.onkeyup=e=>{
@@ -317,7 +289,7 @@ function checkStatuses(){
  });
 }
 
-/* Excel */
+/* Excel unchanged */
 function exportToExcel(){
  let d=[],h=new Set();
  document.querySelectorAll(".card").forEach(c=>{
