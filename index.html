@@ -15,47 +15,6 @@
   --border:#2a2a2a;
 }
 
-body {
-  margin:0;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size:12px;
-  background:var(--bg);
-  color:var(--text);
-}
-
-/* ✅ LIGHT MODE */
-body.light {
-  --bg:#f5f5f5;
-  --card:#ffffff;
-  --text:#222222;
-  --muted:#666666;
-  --border:#dddddd;
-}
-
-/* ✅ PRINT CLEAN VIEW */
-@media print {
-  body * {
-    visibility: hidden;
-  }
-
-  .container, .container * {
-    visibility: visible;
-  }
-
-  .container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-  }
-
-  .card {
-    page-break-inside: avoid;
-    border:1px solid #ccc;
-    box-shadow:none;
-  }
-}
-
 /* Layout */
 .layout { display:flex; }
 
@@ -63,73 +22,141 @@ body.light {
 .sidebar {
   width:0;
   overflow:hidden;
-  transition:0.3s;
+  transition: width 0.25s cubic-bezier(0.4,0,0.2,1);
   background:var(--card);
   border-right:1px solid var(--border);
 }
-.sidebar.active { width:180px; padding:10px; }
 
-/* Main */
-.main { flex:1; padding:12px; }
+.sidebar.active {
+  width:180px;
+  padding:10px;
+}
+
+.sidebar a {
+  display:block;
+  padding:6px;
+  margin:6px 0;
+  color:var(--text);
+  text-decoration:none;
+  border-radius:6px;
+}
+
+.sidebar a:hover {
+  background:rgba(0,255,200,0.1);
+}
+
+.sidebar a.active {
+  background:rgba(0,255,200,0.2);
+  border-left:3px solid #00ffc8;
+}
+
+/* Body */
+body {
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  font-size:12px;
+  background:var(--bg);
+  color:var(--text);
+}
 
 /* Topbar */
 .topbar {
   display:flex;
   gap:6px;
-  margin-bottom:10px;
   flex-wrap:wrap;
+  margin-bottom:10px;
+  align-items:center;
 }
 
 .menu { cursor:pointer; }
 
 .search {
   flex:1;
+  min-width:150px;
   padding:6px;
   background:var(--card);
   border:1px solid var(--border);
   color:var(--text);
 }
 
-.tools span { cursor:pointer; margin-left:6px; }
-
 /* Cards */
 .container {
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:10px;
+  gap:12px;
 }
 
 .card {
+  position:relative;
   background:var(--card);
-  border-radius:10px;
+  border-radius:12px;
   padding:10px;
-  border:1px solid var(--border);
   text-decoration:none;
   color:var(--text);
+  border:1px solid var(--border);
+  overflow:hidden;
+  transition:all 0.2s ease;
 }
 
+/* ✅ shimmer */
+.card::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(120deg,transparent,rgba(255,255,255,0.08),transparent);
+  opacity:0;
+}
+
+.card:hover::before {
+  opacity:1;
+}
+
+/* ✅ hover glow */
 .card:hover {
-  transform:translateY(-4px);
-  box-shadow:0 8px 20px rgba(0,0,0,0.6);
+  transform:translateY(-4px) scale(1.02);
+  box-shadow:
+    0 10px 25px rgba(0,0,0,0.6),
+    0 0 20px rgba(0,255,200,0.25);
 }
 
+/* Fields */
 .field { margin-bottom:4px; }
 .label { font-size:9px; color:var(--muted); }
 .value { font-weight:600; }
 
-/* Status */
+/* ✅ Spinner */
 .status-inline {
-  margin-left:6px;
   width:14px;
   height:14px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
   border-radius:50%;
+  border:2px solid #444;
+  border-top:2px solid #00ffc8;
+  animation:spin 0.8s linear infinite;
+  margin-left:6px;
 }
 
-.ok { background:#2ea44f; color:white; }
-.fail { background:#e5533d; color:white; }
+@keyframes spin {
+  100% { transform:rotate(360deg); }
+}
+
+/* ✅ success/fail */
+.ok {
+  animation:none;
+  background:#2ea44f;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.fail {
+  animation:none;
+  background:#e5533d;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
 
 /* Auth */
 #auth {
@@ -157,31 +184,30 @@ Password<br>
 <div class="layout">
 
 <div class="sidebar" id="sidebar">
-  Home<br>
-  Dashboard<br>
-  Settings
+  <a href="#" class="active">🏠 Home</a>
+  <a href="#">📊 Dashboard</a>
+  <a href="#">⚙ Settings</a>
+  <a href="#">📁 Projects</a>
 </div>
 
-<div class="main">
+<div style="flex:1;padding:12px;">
 
 <div class="topbar">
   <span class="menu" onclick="toggleMenu()">☰</span>
   <input class="search" id="searchBox" placeholder="Search...">
 
-  <div class="tools">
-    <span id="themeToggle">🌙</span>
-    <span onclick="window.print()">🖨</span>
-    <span onclick="exportToExcel()">📊</span>
-  </div>
+  <span id="themeToggle">🌙</span>
+  <span onclick="window.print()">🖨</span>
+  <span onclick="exportToExcel()">📊</span>
 </div>
 
 <div class="container">
 
-<a class="card" href="https://docs.python.org" target="_blank" data-url="https://docs.python.org">
+<a class="card" href="https://docs.python.org" target="_blank" data-url="https://docs.python.org" title="https://docs.python.org">
   
             <div class="field">
               <div class="label">Info</div>
-              <div class="value">Python Docs <span class="status status-inline">⏳</span></div>
+              <div class="value">Python Docs <span class="status status-inline"></span></div>
             </div>
             
             <div class="field">
@@ -196,11 +222,11 @@ Password<br>
             
 </a>
 
-<a class="card" href="https://github.com" target="_blank" data-url="https://github.com">
+<a class="card" href="https://github.com" target="_blank" data-url="https://github.com" title="https://github.com">
   
             <div class="field">
               <div class="label">Info</div>
-              <div class="value">Github <span class="status status-inline">⏳</span></div>
+              <div class="value">Github <span class="status status-inline"></span></div>
             </div>
             
             <div class="field">
@@ -215,11 +241,11 @@ Password<br>
             
 </a>
 
-<a class="card" href="https://vscode.dev/github.com/" target="_blank" data-url="https://vscode.dev/github.com/">
+<a class="card" href="https://vscode.dev/github.com/" target="_blank" data-url="https://vscode.dev/github.com/" title="https://vscode.dev/github.com/">
   
             <div class="field">
               <div class="label">Info</div>
-              <div class="value">VScode <span class="status status-inline">⏳</span></div>
+              <div class="value">VScode <span class="status status-inline"></span></div>
             </div>
             
             <div class="field">
@@ -234,11 +260,11 @@ Password<br>
             
 </a>
 
-<a class="card" href="https://copilot.microsoft.com/" target="_blank" data-url="https://copilot.microsoft.com/">
+<a class="card" href="https://copilot.microsoft.com/" target="_blank" data-url="https://copilot.microsoft.com/" title="https://copilot.microsoft.com/">
   
             <div class="field">
               <div class="label">Info</div>
-              <div class="value">Copilot <span class="status status-inline">⏳</span></div>
+              <div class="value">Copilot <span class="status status-inline"></span></div>
             </div>
             
             <div class="field">
@@ -253,11 +279,11 @@ Password<br>
             
 </a>
 
-<a class="card" href="https://search.brave.com/" target="_blank" data-url="https://search.brave.com/">
+<a class="card" href="https://search.brave.com/" target="_blank" data-url="https://search.brave.com/" title="https://search.brave.com/">
   
             <div class="field">
               <div class="label">Info</div>
-              <div class="value">Brave <span class="status status-inline">⏳</span></div>
+              <div class="value">Brave <span class="status status-inline"></span></div>
             </div>
             
             <div class="field">
@@ -272,11 +298,11 @@ Password<br>
             
 </a>
 
-<a class="card" href="https://gemini.google.com/app" target="_blank" data-url="https://gemini.google.com/app">
+<a class="card" href="https://gemini.google.com/app" target="_blank" data-url="https://gemini.google.com/app" title="https://gemini.google.com/app">
   
             <div class="field">
               <div class="label">Info</div>
-              <div class="value">Gemini <span class="status status-inline">⏳</span></div>
+              <div class="value">Gemini <span class="status status-inline"></span></div>
             </div>
             
             <div class="field">
@@ -291,11 +317,11 @@ Password<br>
             
 </a>
 
-<a class="card" href="https://www.aitmpl.com/" target="_blank" data-url="https://www.aitmpl.com/">
+<a class="card" href="https://www.aitmpl.com/" target="_blank" data-url="https://www.aitmpl.com/" title="https://www.aitmpl.com/">
   
             <div class="field">
               <div class="label">Info</div>
-              <div class="value">Aitmpl <span class="status status-inline">⏳</span></div>
+              <div class="value">Aitmpl <span class="status status-inline"></span></div>
             </div>
             
             <div class="field">
@@ -310,11 +336,11 @@ Password<br>
             
 </a>
 
-<a class="card" href="https://cobalt.tools/" target="_blank" data-url="https://cobalt.tools/">
+<a class="card" href="https://cobalt.tools/" target="_blank" data-url="https://cobalt.tools/" title="https://cobalt.tools/">
   
             <div class="field">
               <div class="label">Info</div>
-              <div class="value">Cobalt <span class="status status-inline">⏳</span></div>
+              <div class="value">Cobalt <span class="status status-inline"></span></div>
             </div>
             
             <div class="field">
@@ -329,11 +355,11 @@ Password<br>
             
 </a>
 
-<a class="card" href="https://test.example" target="_blank" data-url="https://test.example">
+<a class="card" href="https://test.example" target="_blank" data-url="https://test.example" title="https://test.example">
   
             <div class="field">
               <div class="label">Info</div>
-              <div class="value">Test <span class="status status-inline">⏳</span></div>
+              <div class="value">Test <span class="status status-inline"></span></div>
             </div>
             
             <div class="field">
@@ -348,11 +374,11 @@ Password<br>
             
 </a>
 
-<a class="card" href="https://naravu.github.io" target="_blank" data-url="https://naravu.github.io">
+<a class="card" href="https://naravu.github.io" target="_blank" data-url="https://naravu.github.io" title="https://naravu.github.io">
   
             <div class="field">
               <div class="label">Info</div>
-              <div class="value">Naravu <span class="status status-inline">⏳</span></div>
+              <div class="value">Naravu <span class="status status-inline"></span></div>
             </div>
             
             <div class="field">
@@ -369,27 +395,29 @@ Password<br>
 
 </div>
 
+<div style="text-align:center;font-size:9px;color:gray;margin-top:10px;">
+© Service Dashboard
+</div>
+
 </div>
 </div>
 </div>
 
 <script>
 
+/* Sidebar toggle */
 function toggleMenu(){
  document.getElementById("sidebar").classList.toggle("active");
 }
 
-/* ✅ FIXED THEME TOGGLE */
-const themeBtn = document.getElementById("themeToggle");
-
-themeBtn.onclick = () => {
-  document.body.classList.toggle("light");
-
-  themeBtn.textContent =
-    document.body.classList.contains("light") ? "☀️" : "🌙";
+/* Theme */
+themeToggle.onclick=()=>{
+ document.body.classList.toggle("light");
+ themeToggle.textContent=
+ document.body.classList.contains("light")?"☀️":"🌙";
 };
 
-/* AUTH */
+/* Auth */
 pwd.onkeyup=async e=>{
  if(e.key==="Enter"){
   let d=new TextEncoder().encode(pwd.value);
@@ -416,12 +444,18 @@ function checkStatuses(){
  document.querySelectorAll(".card").forEach(c=>{
   let s=c.querySelector(".status-inline");
   fetch(c.dataset.url,{method:"HEAD",mode:"no-cors"})
-   .then(()=>{s.textContent="✓";s.classList.add("ok")})
-   .catch(()=>{s.textContent="✖";s.classList.add("fail")});
+   .then(()=>{
+     s.textContent="✓";
+     s.classList.add("ok");
+   })
+   .catch(()=>{
+     s.textContent="✖";
+     s.classList.add("fail");
+   });
  });
 }
 
-/* Excel unchanged */
+/* Excel */
 function exportToExcel(){
  let d=[],h=new Set();
  document.querySelectorAll(".card").forEach(c=>{
@@ -445,7 +479,6 @@ function exportToExcel(){
  XLSX.utils.book_append_sheet(wb,ws,"Dashboard");
  XLSX.writeFile(wb,"dashboard.xlsx");
 }
-
 </script>
 
 </body>
