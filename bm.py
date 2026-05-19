@@ -38,7 +38,7 @@ def md_to_cards(md_file, html_file):
 
             tick_html = ""
             if first:
-                tick_html = '<span class="status status-inline">⏳</span>'
+                tick_html = '<span class="status status-inline"></span>'
                 first = False
 
             fields_html += f"""
@@ -59,7 +59,6 @@ def md_to_cards(md_file, html_file):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="fav.svg">
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <title>Service Dashboard</title>
 
@@ -72,30 +71,14 @@ def md_to_cards(md_file, html_file):
   --border:#2a2a2a;
 }
 
-body {
-  margin:0;
-  font-family:Arial, Helvetica, sans-serif;
-  font-size:12px;
-  background:var(--bg);
-  color:var(--text);
-}
-
-body.light {
-  --bg:#f5f5f5;
-  --card:#ffffff;
-  --text:#222;
-  --muted:#666;
-  --border:#ddd;
-}
-
 /* Layout */
 .layout { display:flex; }
 
-/* ✅ Sidebar fixed */
+/* Sidebar */
 .sidebar {
   width:0;
   overflow:hidden;
-  transition:0.3s ease;
+  transition: width 0.25s cubic-bezier(0.4,0,0.2,1);
   background:var(--card);
   border-right:1px solid var(--border);
 }
@@ -107,38 +90,42 @@ body.light {
 
 .sidebar a {
   display:block;
-  padding:6px 4px;
+  padding:6px;
   margin:6px 0;
-  text-decoration:none;
   color:var(--text);
+  text-decoration:none;
   border-radius:6px;
 }
 
 .sidebar a:hover {
-  background:rgba(0,255,200,0.08);
+  background:rgba(0,255,200,0.1);
 }
 
-/* Main */
-.main {
-  flex:1;
-  padding:12px;
+.sidebar a.active {
+  background:rgba(0,255,200,0.2);
+  border-left:3px solid #00ffc8;
+}
+
+/* Body */
+body {
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  font-size:12px;
+  background:var(--bg);
+  color:var(--text);
 }
 
 /* Topbar */
 .topbar {
   display:flex;
   gap:6px;
-  margin-bottom:10px;
   flex-wrap:wrap;
+  margin-bottom:10px;
   align-items:center;
 }
 
-.menu {
-  cursor:pointer;
-  font-size:16px;
-}
+.menu { cursor:pointer; }
 
-/* Search */
 .search {
   flex:1;
   min-width:150px;
@@ -148,13 +135,7 @@ body.light {
   color:var(--text);
 }
 
-/* Buttons */
-.tools span {
-  cursor:pointer;
-  margin-left:6px;
-}
-
-/* ✅ AI CARDS RESTORED */
+/* Cards */
 .container {
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
@@ -162,23 +143,36 @@ body.light {
 }
 
 .card {
+  position:relative;
   background:var(--card);
   border-radius:12px;
   padding:10px;
   text-decoration:none;
   color:var(--text);
   border:1px solid var(--border);
-
+  overflow:hidden;
   transition:all 0.2s ease;
 }
 
-/* 🔥 AI glow */
+/* ✅ shimmer */
+.card::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(120deg,transparent,rgba(255,255,255,0.08),transparent);
+  opacity:0;
+}
+
+.card:hover::before {
+  opacity:1;
+}
+
+/* ✅ hover glow */
 .card:hover {
   transform:translateY(-4px) scale(1.02);
   box-shadow:
     0 10px 25px rgba(0,0,0,0.6),
     0 0 20px rgba(0,255,200,0.25);
-  border-color:rgba(0,255,200,0.4);
 }
 
 /* Fields */
@@ -186,20 +180,49 @@ body.light {
 .label { font-size:9px; color:var(--muted); }
 .value { font-weight:600; }
 
-/* Status */
+/* ✅ Spinner */
 .status-inline {
-  margin-left:6px;
   width:14px;
   height:14px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
   border-radius:50%;
+  border:2px solid #444;
+  border-top:2px solid #00ffc8;
+  animation:spin 0.8s linear infinite;
+  margin-left:6px;
 }
 
-/* Tick */
-.ok { background:#2ea44f; color:white; }
-.fail { background:#e5533d; color:white; }
+@keyframes spin {
+  100% { transform:rotate(360deg); }
+}
+
+/* ✅ success/fail */
+.ok {
+  animation:none;
+  background:#2ea44f;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.fail {
+  animation:none;
+  background:#e5533d;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* Auth */
+#auth {
+  position:fixed;
+  inset:0;
+  background:#000c;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
 </style>
 </head>
 
@@ -216,25 +239,22 @@ Password<br>
 
 <div class="layout">
 
-<!-- ✅ WORKING SIDEBAR -->
 <div class="sidebar" id="sidebar">
-  <a href="#">🏠 Home</a>
+  <a href="#" class="active">🏠 Home</a>
   <a href="#">📊 Dashboard</a>
   <a href="#">⚙ Settings</a>
   <a href="#">📁 Projects</a>
 </div>
 
-<div class="main">
+<div style="flex:1;padding:12px;">
 
 <div class="topbar">
   <span class="menu" onclick="toggleMenu()">☰</span>
   <input class="search" id="searchBox" placeholder="Search...">
 
-  <div class="tools">
-    <span id="themeToggle">🌙</span>
-    <span onclick="window.print()">🖨</span>
-    <span onclick="exportToExcel()">📊</span>
-  </div>
+  <span id="themeToggle">🌙</span>
+  <span onclick="window.print()">🖨</span>
+  <span onclick="exportToExcel()">📊</span>
 </div>
 
 <div class="container">
@@ -251,20 +271,19 @@ __CARDS__
 
 <script>
 
-/* ✅ Sidebar toggle (fixed) */
+/* Sidebar toggle */
 function toggleMenu(){
  document.getElementById("sidebar").classList.toggle("active");
 }
 
-/* ✅ Theme fix */
-const themeBtn = document.getElementById("themeToggle");
-themeBtn.onclick = () => {
+/* Theme */
+themeToggle.onclick=()=>{
  document.body.classList.toggle("light");
- themeBtn.textContent =
-  document.body.classList.contains("light") ? "☀️" : "🌙";
+ themeToggle.textContent=
+ document.body.classList.contains("light")?"☀️":"🌙";
 };
 
-/* AUTH */
+/* Auth */
 pwd.onkeyup=async e=>{
  if(e.key==="Enter"){
   let d=new TextEncoder().encode(pwd.value);
@@ -286,17 +305,23 @@ searchBox.onkeyup=e=>{
  });
 };
 
-/* ✅ Status */
+/* Status */
 function checkStatuses(){
  document.querySelectorAll(".card").forEach(c=>{
   let s=c.querySelector(".status-inline");
   fetch(c.dataset.url,{method:"HEAD",mode:"no-cors"})
-   .then(()=>{s.textContent="✓";s.classList.add("ok")})
-   .catch(()=>{s.textContent="✖";s.classList.add("fail")});
+   .then(()=>{
+     s.textContent="✓";
+     s.classList.add("ok");
+   })
+   .catch(()=>{
+     s.textContent="✖";
+     s.classList.add("fail");
+   });
  });
 }
 
-/* Excel export unchanged */
+/* Excel */
 function exportToExcel(){
  let d=[],h=new Set();
  document.querySelectorAll(".card").forEach(c=>{
@@ -331,7 +356,7 @@ function exportToExcel(){
     with open(html_file, "w", encoding="utf-8") as f:
         f.write(html_final)
 
-    print("✅ Done")
+    print("✅ Fully optimized + enhanced")
 
 
 md_to_cards("bm.md", "index.html")
