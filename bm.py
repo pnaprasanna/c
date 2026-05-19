@@ -1,5 +1,3 @@
-# Python part unchanged...
-
 import os
 import hashlib
 import markdown
@@ -51,7 +49,7 @@ def md_to_cards(md_file, html_file):
             """
 
         cards_html += f"""
-<a class="card" href="{url}" target="_blank" data-url="{url}">
+<a class="card" href="{url}" target="_blank" data-url="{url}" title="{url}">
   {fields_html}
 </a>
 """
@@ -61,6 +59,7 @@ def md_to_cards(md_file, html_file):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="fav.svg">
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <title>Service Dashboard</title>
 
@@ -75,60 +74,55 @@ def md_to_cards(md_file, html_file):
 
 body {
   margin:0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:Arial, Helvetica, sans-serif;
   font-size:12px;
   background:var(--bg);
   color:var(--text);
 }
 
-/* ✅ LIGHT MODE */
 body.light {
   --bg:#f5f5f5;
   --card:#ffffff;
-  --text:#222222;
-  --muted:#666666;
-  --border:#dddddd;
-}
-
-/* ✅ PRINT CLEAN VIEW */
-@media print {
-  body * {
-    visibility: hidden;
-  }
-
-  .container, .container * {
-    visibility: visible;
-  }
-
-  .container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-  }
-
-  .card {
-    page-break-inside: avoid;
-    border:1px solid #ccc;
-    box-shadow:none;
-  }
+  --text:#222;
+  --muted:#666;
+  --border:#ddd;
 }
 
 /* Layout */
 .layout { display:flex; }
 
-/* Sidebar */
+/* ✅ Sidebar fixed */
 .sidebar {
   width:0;
   overflow:hidden;
-  transition:0.3s;
+  transition:0.3s ease;
   background:var(--card);
   border-right:1px solid var(--border);
 }
-.sidebar.active { width:180px; padding:10px; }
+
+.sidebar.active {
+  width:180px;
+  padding:10px;
+}
+
+.sidebar a {
+  display:block;
+  padding:6px 4px;
+  margin:6px 0;
+  text-decoration:none;
+  color:var(--text);
+  border-radius:6px;
+}
+
+.sidebar a:hover {
+  background:rgba(0,255,200,0.08);
+}
 
 /* Main */
-.main { flex:1; padding:12px; }
+.main {
+  flex:1;
+  padding:12px;
+}
 
 /* Topbar */
 .topbar {
@@ -136,41 +130,58 @@ body.light {
   gap:6px;
   margin-bottom:10px;
   flex-wrap:wrap;
+  align-items:center;
 }
 
-.menu { cursor:pointer; }
+.menu {
+  cursor:pointer;
+  font-size:16px;
+}
 
+/* Search */
 .search {
   flex:1;
+  min-width:150px;
   padding:6px;
   background:var(--card);
   border:1px solid var(--border);
   color:var(--text);
 }
 
-.tools span { cursor:pointer; margin-left:6px; }
+/* Buttons */
+.tools span {
+  cursor:pointer;
+  margin-left:6px;
+}
 
-/* Cards */
+/* ✅ AI CARDS RESTORED */
 .container {
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:10px;
+  gap:12px;
 }
 
 .card {
   background:var(--card);
-  border-radius:10px;
+  border-radius:12px;
   padding:10px;
-  border:1px solid var(--border);
   text-decoration:none;
   color:var(--text);
+  border:1px solid var(--border);
+
+  transition:all 0.2s ease;
 }
 
+/* 🔥 AI glow */
 .card:hover {
-  transform:translateY(-4px);
-  box-shadow:0 8px 20px rgba(0,0,0,0.6);
+  transform:translateY(-4px) scale(1.02);
+  box-shadow:
+    0 10px 25px rgba(0,0,0,0.6),
+    0 0 20px rgba(0,255,200,0.25);
+  border-color:rgba(0,255,200,0.4);
 }
 
+/* Fields */
 .field { margin-bottom:4px; }
 .label { font-size:9px; color:var(--muted); }
 .value { font-weight:600; }
@@ -186,18 +197,9 @@ body.light {
   border-radius:50%;
 }
 
+/* Tick */
 .ok { background:#2ea44f; color:white; }
 .fail { background:#e5533d; color:white; }
-
-/* Auth */
-#auth {
-  position:fixed;
-  inset:0;
-  background:#000c;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
 </style>
 </head>
 
@@ -214,10 +216,12 @@ Password<br>
 
 <div class="layout">
 
+<!-- ✅ WORKING SIDEBAR -->
 <div class="sidebar" id="sidebar">
-  Home<br>
-  Dashboard<br>
-  Settings
+  <a href="#">🏠 Home</a>
+  <a href="#">📊 Dashboard</a>
+  <a href="#">⚙ Settings</a>
+  <a href="#">📁 Projects</a>
 </div>
 
 <div class="main">
@@ -237,24 +241,27 @@ Password<br>
 __CARDS__
 </div>
 
+<div style="text-align:center;font-size:9px;color:gray;margin-top:10px;">
+© Service Dashboard
+</div>
+
 </div>
 </div>
 </div>
 
 <script>
 
+/* ✅ Sidebar toggle (fixed) */
 function toggleMenu(){
  document.getElementById("sidebar").classList.toggle("active");
 }
 
-/* ✅ FIXED THEME TOGGLE */
+/* ✅ Theme fix */
 const themeBtn = document.getElementById("themeToggle");
-
 themeBtn.onclick = () => {
-  document.body.classList.toggle("light");
-
-  themeBtn.textContent =
-    document.body.classList.contains("light") ? "☀️" : "🌙";
+ document.body.classList.toggle("light");
+ themeBtn.textContent =
+  document.body.classList.contains("light") ? "☀️" : "🌙";
 };
 
 /* AUTH */
@@ -279,7 +286,7 @@ searchBox.onkeyup=e=>{
  });
 };
 
-/* Status */
+/* ✅ Status */
 function checkStatuses(){
  document.querySelectorAll(".card").forEach(c=>{
   let s=c.querySelector(".status-inline");
@@ -289,7 +296,7 @@ function checkStatuses(){
  });
 }
 
-/* Excel unchanged */
+/* Excel export unchanged */
 function exportToExcel(){
  let d=[],h=new Set();
  document.querySelectorAll(".card").forEach(c=>{
@@ -313,7 +320,6 @@ function exportToExcel(){
  XLSX.utils.book_append_sheet(wb,ws,"Dashboard");
  XLSX.writeFile(wb,"dashboard.xlsx");
 }
-
 </script>
 
 </body>
