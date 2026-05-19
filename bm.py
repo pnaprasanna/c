@@ -50,7 +50,7 @@ def md_to_cards(md_file, html_file):
             """
 
         cards_html += f"""
-<a class="card" href="{url}" target="_blank" data-url="{url}" title="{url}">
+<a class="card" href="{url}" target="_blank" data-url="{url}">
   {fields_html}
 </a>
 """
@@ -72,11 +72,6 @@ def md_to_cards(md_file, html_file):
   --border:#2a2a2a;
 }
 
-/* Layout */
-.layout {
-  display:flex;
-}
-
 body {
   margin:0;
   font-family: Arial, Helvetica, sans-serif;
@@ -85,18 +80,25 @@ body {
   color:var(--text);
 }
 
-/* Sidebar */
+/* ✅ Layout */
+.layout {
+  display:flex;
+}
+
+/* ✅ Sidebar */
 .sidebar {
   width:0;
   overflow:hidden;
-  transition:width 0.3s ease;
+  transition:0.3s;
   background:var(--card);
   border-right:1px solid var(--border);
 }
+
 .sidebar.active {
   width:180px;
   padding:10px;
 }
+
 .sidebar a {
   display:block;
   margin:10px 0;
@@ -104,18 +106,19 @@ body {
   text-decoration:none;
 }
 
-/* Main */
+/* ✅ Main */
 .main {
   flex:1;
   padding:12px;
 }
 
-/* Topbar */
+/* ✅ Topbar */
 .topbar {
   display:flex;
-  gap:8px;
-  margin-bottom:10px;
   align-items:center;
+  gap:6px;
+  margin-bottom:10px;
+  flex-wrap:wrap; /* ✅ responsive */
 }
 
 .menu {
@@ -126,16 +129,26 @@ body {
 .search {
   flex:1;
   padding:6px;
+  min-width:150px;
   background:var(--card);
   border:1px solid var(--border);
   color:var(--text);
 }
 
-/* Cards */
+.tools {
+  display:flex;
+  gap:6px;
+}
+
+.tools span {
+  cursor:pointer;
+}
+
+/* ✅ Cards */
 .container {
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:12px;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:10px;
 }
 
 .card {
@@ -145,15 +158,15 @@ body {
   text-decoration:none;
   color:var(--text);
   border:1px solid var(--border);
-  transition:all 0.2s ease;
+  transition:0.2s;
 }
 
-/* ✅ AI hover */
+/* ✅ AI effect */
 .card:hover {
-  transform:translateY(-4px) scale(1.01);
+  transform:translateY(-4px);
   box-shadow:
-    0 8px 20px rgba(0,0,0,0.6),
-    0 0 15px rgba(0,255,200,0.25);
+    0 6px 20px rgba(0,0,0,0.6),
+    0 0 12px rgba(0,255,200,0.25);
 }
 
 /* Fields */
@@ -161,7 +174,7 @@ body {
 .label { font-size:9px; color:var(--muted); }
 .value { font-weight:600; }
 
-/* ✅ STATUS */
+/* ✅ status */
 .status-inline {
   width:16px;
   height:16px;
@@ -173,7 +186,6 @@ body {
   font-size:10px;
 }
 
-/* Animation */
 @keyframes tickPop {
   0% {transform:scale(.5);opacity:0}
   60% {transform:scale(1.2);opacity:1}
@@ -183,7 +195,7 @@ body {
 .ok {
   background:#2ea44f;
   color:white;
-  animation:tickPop .3s ease-out;
+  animation:tickPop 0.3s ease-out;
 }
 
 .fail {
@@ -191,7 +203,23 @@ body {
   color:white;
 }
 
-/* Auth */
+/* ✅ Mobile responsiveness */
+@media (max-width: 768px) {
+  .sidebar.active {
+    width:140px;
+  }
+
+  .topbar {
+    flex-direction:row;
+    flex-wrap:wrap;
+  }
+
+  .container {
+    grid-template-columns:1fr;
+  }
+}
+
+/* ✅ Auth */
 #auth {
   position:fixed;
   inset:0;
@@ -216,19 +244,23 @@ Password<br>
 
 <div class="layout">
 
-<!-- Sidebar -->
 <div class="sidebar" id="sidebar">
   <a href="#">🏠 Home</a>
   <a href="#">📊 Dashboard</a>
   <a href="#">⚙ Settings</a>
 </div>
 
-<!-- Main -->
 <div class="main">
 
 <div class="topbar">
   <span class="menu" onclick="toggleMenu()">☰</span>
   <input class="search" id="searchBox" placeholder="Search...">
+
+  <div class="tools">
+    <span id="themeToggle">🌙</span>
+    <span onclick="window.print()">🖨</span>
+    <span onclick="exportToExcel()">📊</span>
+  </div>
 </div>
 
 <div class="container">
@@ -245,11 +277,12 @@ __CARDS__
 
 <script>
 
+/* Menu */
 function toggleMenu(){
  document.getElementById("sidebar").classList.toggle("active");
 }
 
-/* AUTH */
+/* Auth */
 pwd.onkeyup=async e=>{
  if(e.key==="Enter"){
   let d=new TextEncoder().encode(pwd.value);
@@ -258,12 +291,15 @@ pwd.onkeyup=async e=>{
   if(hex==="__PASSWORD_HASH__"){
     auth.style.display="none";
     app.style.display="block";
-    checkStatuses();  // ✅ FIX
+    checkStatuses();
   } else alert("Wrong password");
  }
 };
 
-/* SEARCH */
+/* Theme */
+themeToggle.onclick=()=>document.body.classList.toggle("light");
+
+/* Search */
 searchBox.onkeyup=e=>{
  let q=e.target.value.toLowerCase();
  document.querySelectorAll(".card").forEach(c=>{
@@ -271,23 +307,41 @@ searchBox.onkeyup=e=>{
  });
 };
 
-/* ✅ STATUS FIX */
+/* Status */
 function checkStatuses(){
  document.querySelectorAll(".card").forEach(c=>{
   let s=c.querySelector(".status-inline");
-  let url=c.dataset.url;
-
-  fetch(url,{method:"HEAD",mode:"no-cors"})
-   .then(()=>{
-     s.textContent="✓";
-     s.classList.add("ok");
-   })
-   .catch(()=>{
-     s.textContent="✖";
-     s.classList.add("fail");
-   });
+  fetch(c.dataset.url,{method:"HEAD",mode:"no-cors"})
+   .then(()=>{s.textContent="✓";s.classList.add("ok")})
+   .catch(()=>{s.textContent="✖";s.classList.add("fail")});
  });
 }
+
+/* Excel */
+function exportToExcel(){
+ let d=[],h=new Set();
+ document.querySelectorAll(".card").forEach(c=>{
+  if(c.style.display==="none")return;
+  let r={};
+  c.querySelectorAll(".field").forEach(f=>{
+   let k=f.querySelector(".label").innerText;
+   let v=f.querySelector(".value").innerText;
+   r[k]=v; h.add(k);
+  });
+  r["URL"]=c.dataset.url;
+  h.add("URL");
+  d.push(r);
+ });
+
+ h=[...h];
+ let ws=XLSX.utils.aoa_to_sheet([
+  h,...d.map(r=>h.map(x=>r[x]||""))
+ ]);
+ let wb=XLSX.utils.book_new();
+ XLSX.utils.book_append_sheet(wb,ws,"Dashboard");
+ XLSX.writeFile(wb,"dashboard.xlsx");
+}
+
 </script>
 
 </body>
