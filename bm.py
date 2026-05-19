@@ -1,5 +1,3 @@
-# (Python part remains unchanged — only HTML/CSS/JS updated)
-
 import os
 import hashlib
 import markdown
@@ -39,7 +37,6 @@ def md_to_cards(md_file, html_file):
                 continue
 
             tick_html = ""
-            copy_html = ""
 
             if first:
                 tick_html = '<span class="status status-inline">⏳</span>'
@@ -75,6 +72,11 @@ def md_to_cards(md_file, html_file):
   --border:#2a2a2a;
 }
 
+/* Layout */
+.layout {
+  display:flex;
+}
+
 body {
   margin:0;
   font-family: Arial, Helvetica, sans-serif;
@@ -83,39 +85,32 @@ body {
   color:var(--text);
 }
 
-/* ✅ Layout */
-.layout {
-  display:flex;
-}
-
-/* ✅ Sidebar (push layout) */
+/* Sidebar */
 .sidebar {
   width:0;
   overflow:hidden;
+  transition:width 0.3s ease;
   background:var(--card);
   border-right:1px solid var(--border);
-  transition:width 0.3s ease;
 }
-
 .sidebar.active {
-  width:200px;
+  width:180px;
   padding:10px;
 }
-
 .sidebar a {
   display:block;
   margin:10px 0;
-  text-decoration:none;
   color:var(--text);
+  text-decoration:none;
 }
 
-/* ✅ Main */
+/* Main */
 .main {
   flex:1;
   padding:12px;
 }
 
-/* ✅ Topbar */
+/* Topbar */
 .topbar {
   display:flex;
   gap:8px;
@@ -136,7 +131,7 @@ body {
   color:var(--text);
 }
 
-/* ✅ Cards (AI style) */
+/* Cards */
 .container {
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
@@ -150,16 +145,15 @@ body {
   text-decoration:none;
   color:var(--text);
   border:1px solid var(--border);
-
   transition:all 0.2s ease;
 }
 
-/* ✅ AI hover glow */
+/* ✅ AI hover */
 .card:hover {
   transform:translateY(-4px) scale(1.01);
   box-shadow:
     0 8px 20px rgba(0,0,0,0.6),
-    0 0 15px rgba(0,255,200,0.2);
+    0 0 15px rgba(0,255,200,0.25);
 }
 
 /* Fields */
@@ -167,9 +161,34 @@ body {
 .label { font-size:9px; color:var(--muted); }
 .value { font-weight:600; }
 
-/* Status */
+/* ✅ STATUS */
 .status-inline {
+  width:16px;
+  height:16px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
   margin-left:6px;
+  font-size:10px;
+}
+
+/* Animation */
+@keyframes tickPop {
+  0% {transform:scale(.5);opacity:0}
+  60% {transform:scale(1.2);opacity:1}
+  100% {transform:scale(1)}
+}
+
+.ok {
+  background:#2ea44f;
+  color:white;
+  animation:tickPop .3s ease-out;
+}
+
+.fail {
+  background:#e5533d;
+  color:white;
 }
 
 /* Auth */
@@ -197,14 +216,14 @@ Password<br>
 
 <div class="layout">
 
-<!-- ✅ Sidebar -->
+<!-- Sidebar -->
 <div class="sidebar" id="sidebar">
   <a href="#">🏠 Home</a>
   <a href="#">📊 Dashboard</a>
   <a href="#">⚙ Settings</a>
 </div>
 
-<!-- ✅ Main -->
+<!-- Main -->
 <div class="main">
 
 <div class="topbar">
@@ -237,8 +256,9 @@ pwd.onkeyup=async e=>{
   let h=await crypto.subtle.digest("SHA-256",d);
   let hex=[...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,"0")).join("");
   if(hex==="__PASSWORD_HASH__"){
-   auth.style.display="none";
-   app.style.display="block";
+    auth.style.display="none";
+    app.style.display="block";
+    checkStatuses();  // ✅ FIX
   } else alert("Wrong password");
  }
 };
@@ -251,6 +271,23 @@ searchBox.onkeyup=e=>{
  });
 };
 
+/* ✅ STATUS FIX */
+function checkStatuses(){
+ document.querySelectorAll(".card").forEach(c=>{
+  let s=c.querySelector(".status-inline");
+  let url=c.dataset.url;
+
+  fetch(url,{method:"HEAD",mode:"no-cors"})
+   .then(()=>{
+     s.textContent="✓";
+     s.classList.add("ok");
+   })
+   .catch(()=>{
+     s.textContent="✖";
+     s.classList.add("fail");
+   });
+ });
+}
 </script>
 
 </body>
