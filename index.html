@@ -3,12 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
 <title>Service Dashboard</title>
 
 <style>
 :root {
-  --bg:#0d1117; /* ChatGPT dark */
+  --bg:#0d1117;
   --card:#161b22;
   --text:#e6edf3;
   --muted:#9da7b3;
@@ -16,13 +18,21 @@
   --accent:#00ffc8;
 }
 
-/* ✅ ChatGPT style background */
 body {
   margin:0;
   font-family:Arial, Helvetica, sans-serif;
   font-size:12px;
   background:var(--bg);
   color:var(--text);
+}
+
+/* ✅ LIGHT MODE FIX */
+body.light {
+  --bg:#f5f5f5;
+  --card:#ffffff;
+  --text:#222;
+  --muted:#666;
+  --border:#ddd;
 }
 
 /* Layout */
@@ -46,9 +56,8 @@ body {
   display:block;
   padding:6px;
   margin:6px 0;
-  color:var(--text);
   text-decoration:none;
-  border-radius:6px;
+  color:var(--text);
 }
 
 .sidebar a:hover {
@@ -76,7 +85,7 @@ body {
   color:var(--text);
 }
 
-/* ✅ ChatGPT-style cards */
+/* Cards */
 .container {
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
@@ -90,31 +99,21 @@ body {
   padding:12px;
   text-decoration:none;
   color:var(--text);
-  transition:all 0.2s ease;
+  transition:0.2s;
 }
 
-/* subtle AI hover */
+/* ChatGPT style hover */
 .card:hover {
   transform:translateY(-3px);
   border-color:var(--accent);
   box-shadow:0 6px 20px rgba(0,255,200,0.15);
 }
 
-/* Fields */
 .field { margin-bottom:6px; }
 .label { font-size:9px; color:var(--muted); }
 .value { font-weight:600; }
 
-/* ✅ URL line aligned */
-.url-line {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:6px;
-  word-break:break-all;
-}
-
-/* ✅ Spinner */
+/* Status spinner */
 .status-inline {
   width:14px;
   height:14px;
@@ -128,7 +127,7 @@ body {
   100% { transform:rotate(360deg); }
 }
 
-/* ✅ Success / Fail */
+/* Status */
 .ok {
   animation:none;
   background:#2ea44f;
@@ -192,12 +191,11 @@ Password<br>
 
 <div class="container">
 
-<a class="card" href="https://docs.python.org" target="_blank" data-url="https://docs.python.org">
+<a class="card" href="https://docs.python.org" target="_blank" data-url="https://docs.python.org" title="https://docs.python.org">
   
         <div class="field">
-          <div class="label">URL</div>
-          <div class="value url-line">
-            https://docs.python.org
+          <div class="label">Status</div>
+          <div class="value">
             <span class="status status-inline"></span>
           </div>
         </div>
@@ -219,12 +217,11 @@ Password<br>
             
 </a>
 
-<a class="card" href="https://github.com" target="_blank" data-url="https://github.com">
+<a class="card" href="https://github.com" target="_blank" data-url="https://github.com" title="https://github.com">
   
         <div class="field">
-          <div class="label">URL</div>
-          <div class="value url-line">
-            https://github.com
+          <div class="label">Status</div>
+          <div class="value">
             <span class="status status-inline"></span>
           </div>
         </div>
@@ -246,12 +243,11 @@ Password<br>
             
 </a>
 
-<a class="card" href="https://vscode.dev/github.com/" target="_blank" data-url="https://vscode.dev/github.com/">
+<a class="card" href="https://vscode.dev/github.com/" target="_blank" data-url="https://vscode.dev/github.com/" title="https://vscode.dev/github.com/">
   
         <div class="field">
-          <div class="label">URL</div>
-          <div class="value url-line">
-            https://vscode.dev/github.com/
+          <div class="label">Status</div>
+          <div class="value">
             <span class="status status-inline"></span>
           </div>
         </div>
@@ -273,12 +269,11 @@ Password<br>
             
 </a>
 
-<a class="card" href="https://copilot.microsoft.com/" target="_blank" data-url="https://copilot.microsoft.com/">
+<a class="card" href="https://copilot.microsoft.com/" target="_blank" data-url="https://copilot.microsoft.com/" title="https://copilot.microsoft.com/">
   
         <div class="field">
-          <div class="label">URL</div>
-          <div class="value url-line">
-            https://copilot.microsoft.com/
+          <div class="label">Status</div>
+          <div class="value">
             <span class="status status-inline"></span>
           </div>
         </div>
@@ -300,12 +295,11 @@ Password<br>
             
 </a>
 
-<a class="card" href="https://search.brave.com/" target="_blank" data-url="https://search.brave.com/">
+<a class="card" href="https://search.brave.com/" target="_blank" data-url="https://search.brave.com/" title="https://search.brave.com/">
   
         <div class="field">
-          <div class="label">URL</div>
-          <div class="value url-line">
-            https://search.brave.com/
+          <div class="label">Status</div>
+          <div class="value">
             <span class="status status-inline"></span>
           </div>
         </div>
@@ -327,12 +321,11 @@ Password<br>
             
 </a>
 
-<a class="card" href="https://gemini.google.com/app" target="_blank" data-url="https://gemini.google.com/app">
+<a class="card" href="https://gemini.google.com/app" target="_blank" data-url="https://gemini.google.com/app" title="https://gemini.google.com/app">
   
         <div class="field">
-          <div class="label">URL</div>
-          <div class="value url-line">
-            https://gemini.google.com/app
+          <div class="label">Status</div>
+          <div class="value">
             <span class="status status-inline"></span>
           </div>
         </div>
@@ -354,12 +347,11 @@ Password<br>
             
 </a>
 
-<a class="card" href="https://www.aitmpl.com/" target="_blank" data-url="https://www.aitmpl.com/">
+<a class="card" href="https://www.aitmpl.com/" target="_blank" data-url="https://www.aitmpl.com/" title="https://www.aitmpl.com/">
   
         <div class="field">
-          <div class="label">URL</div>
-          <div class="value url-line">
-            https://www.aitmpl.com/
+          <div class="label">Status</div>
+          <div class="value">
             <span class="status status-inline"></span>
           </div>
         </div>
@@ -381,12 +373,11 @@ Password<br>
             
 </a>
 
-<a class="card" href="https://cobalt.tools/" target="_blank" data-url="https://cobalt.tools/">
+<a class="card" href="https://cobalt.tools/" target="_blank" data-url="https://cobalt.tools/" title="https://cobalt.tools/">
   
         <div class="field">
-          <div class="label">URL</div>
-          <div class="value url-line">
-            https://cobalt.tools/
+          <div class="label">Status</div>
+          <div class="value">
             <span class="status status-inline"></span>
           </div>
         </div>
@@ -408,12 +399,11 @@ Password<br>
             
 </a>
 
-<a class="card" href="https://test.example" target="_blank" data-url="https://test.example">
+<a class="card" href="https://test.example" target="_blank" data-url="https://test.example" title="https://test.example">
   
         <div class="field">
-          <div class="label">URL</div>
-          <div class="value url-line">
-            https://test.example
+          <div class="label">Status</div>
+          <div class="value">
             <span class="status status-inline"></span>
           </div>
         </div>
@@ -435,12 +425,11 @@ Password<br>
             
 </a>
 
-<a class="card" href="https://naravu.github.io" target="_blank" data-url="https://naravu.github.io">
+<a class="card" href="https://naravu.github.io" target="_blank" data-url="https://naravu.github.io" title="https://naravu.github.io">
   
         <div class="field">
-          <div class="label">URL</div>
-          <div class="value url-line">
-            https://naravu.github.io
+          <div class="label">Status</div>
+          <div class="value">
             <span class="status status-inline"></span>
           </div>
         </div>
@@ -474,8 +463,11 @@ function toggleMenu(){
  document.getElementById("sidebar").classList.toggle("active");
 }
 
+/* ✅ Proper dark toggle */
 themeToggle.onclick=()=>{
  document.body.classList.toggle("light");
+ themeToggle.textContent =
+ document.body.classList.contains("light") ? "☀️" : "🌙";
 };
 
 /* Auth */
