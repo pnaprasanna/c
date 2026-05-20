@@ -31,12 +31,12 @@ def md_to_cards(md_file, html_file):
 
         fields_html = ""
 
-        # ✅ URL first with tick (FIXED)
-        fields_html += f"""
+        # ❌ URL removed from visible UI
+        # ✅ Keep status only
+        fields_html += """
         <div class="field">
-          <div class="label">URL</div>
-          <div class="value url-line">
-            {url}
+          <div class="label">Status</div>
+          <div class="value">
             <span class="status status-inline"></span>
           </div>
         </div>
@@ -53,8 +53,9 @@ def md_to_cards(md_file, html_file):
             </div>
             """
 
+        # ✅ URL as tooltip + clickable card
         cards_html += f"""
-<a class="card" href="{url}" target="_blank" data-url="{url}">
+<a class="card" href="{url}" target="_blank" data-url="{url}" title="{url}">
   {fields_html}
 </a>
 """
@@ -64,12 +65,14 @@ def md_to_cards(md_file, html_file):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
 <title>Service Dashboard</title>
 
 <style>
 :root {
-  --bg:#0d1117; /* ChatGPT dark */
+  --bg:#0d1117;
   --card:#161b22;
   --text:#e6edf3;
   --muted:#9da7b3;
@@ -77,13 +80,21 @@ def md_to_cards(md_file, html_file):
   --accent:#00ffc8;
 }
 
-/* ✅ ChatGPT style background */
 body {
   margin:0;
   font-family:Arial, Helvetica, sans-serif;
   font-size:12px;
   background:var(--bg);
   color:var(--text);
+}
+
+/* ✅ LIGHT MODE FIX */
+body.light {
+  --bg:#f5f5f5;
+  --card:#ffffff;
+  --text:#222;
+  --muted:#666;
+  --border:#ddd;
 }
 
 /* Layout */
@@ -107,9 +118,8 @@ body {
   display:block;
   padding:6px;
   margin:6px 0;
-  color:var(--text);
   text-decoration:none;
-  border-radius:6px;
+  color:var(--text);
 }
 
 .sidebar a:hover {
@@ -137,7 +147,7 @@ body {
   color:var(--text);
 }
 
-/* ✅ ChatGPT-style cards */
+/* Cards */
 .container {
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
@@ -151,31 +161,21 @@ body {
   padding:12px;
   text-decoration:none;
   color:var(--text);
-  transition:all 0.2s ease;
+  transition:0.2s;
 }
 
-/* subtle AI hover */
+/* ChatGPT style hover */
 .card:hover {
   transform:translateY(-3px);
   border-color:var(--accent);
   box-shadow:0 6px 20px rgba(0,255,200,0.15);
 }
 
-/* Fields */
 .field { margin-bottom:6px; }
 .label { font-size:9px; color:var(--muted); }
 .value { font-weight:600; }
 
-/* ✅ URL line aligned */
-.url-line {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:6px;
-  word-break:break-all;
-}
-
-/* ✅ Spinner */
+/* Status spinner */
 .status-inline {
   width:14px;
   height:14px;
@@ -189,7 +189,7 @@ body {
   100% { transform:rotate(360deg); }
 }
 
-/* ✅ Success / Fail */
+/* Status */
 .ok {
   animation:none;
   background:#2ea44f;
@@ -265,8 +265,11 @@ function toggleMenu(){
  document.getElementById("sidebar").classList.toggle("active");
 }
 
+/* ✅ Proper dark toggle */
 themeToggle.onclick=()=>{
  document.body.classList.toggle("light");
+ themeToggle.textContent =
+ document.body.classList.contains("light") ? "☀️" : "🌙";
 };
 
 /* Auth */
@@ -337,12 +340,12 @@ function exportToExcel(){
 </html>
 """
 
-    html_final = html_template.replace("__CARDS__", cards_html).replace("__PASSWORD_HASH__", password_hash)
+    html_final = html_template.replace("__CARDS__", cards_html)\
+                              .replace("__PASSWORD_HASH__", password_hash)
 
     with open(html_file, "w", encoding="utf-8") as f:
         f.write(html_final)
 
-    print("✅ Final version generated")
-
+    print("✅ Final fixed version generated")
 
 md_to_cards("bm.md", "index.html")
