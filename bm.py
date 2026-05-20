@@ -30,30 +30,27 @@ def md_to_cards(md_file, html_file):
             continue
 
         fields_html = ""
-
-        # ❌ URL removed from visible UI
-        # ✅ Keep status only
-        fields_html += """
-        <div class="field">
-          <div class="label">Status</div>
-          <div class="value">
-            <span class="status status-inline"></span>
-          </div>
-        </div>
-        """
+        first = True
 
         for k, v in data.items():
             if k.lower() == "url":
                 continue
 
+            # ✅ Status moved inline to FIRST info field
+            status_html = ""
+            if first:
+                status_html = '<span class="status status-inline"></span>'
+                first = False
+
             fields_html += f"""
             <div class="field">
               <div class="label">{k}</div>
-              <div class="value">{v}</div>
+              <div class="value">
+                {v} {status_html}
+              </div>
             </div>
             """
 
-        # ✅ URL as tooltip + clickable card
         cards_html += f"""
 <a class="card" href="{url}" target="_blank" data-url="{url}" title="{url}">
   {fields_html}
@@ -88,7 +85,6 @@ body {
   color:var(--text);
 }
 
-/* ✅ LIGHT MODE FIX */
 body.light {
   --bg:#f5f5f5;
   --card:#ffffff;
@@ -164,7 +160,6 @@ body.light {
   transition:0.2s;
 }
 
-/* ChatGPT style hover */
 .card:hover {
   transform:translateY(-3px);
   border-color:var(--accent);
@@ -175,13 +170,17 @@ body.light {
 .label { font-size:9px; color:var(--muted); }
 .value { font-weight:600; }
 
-/* Status spinner */
+/* ✅ inline status */
 .status-inline {
   width:14px;
   height:14px;
+  margin-left:6px;
   border-radius:50%;
   border:2px solid #333;
   border-top:2px solid var(--accent);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
   animation:spin 0.8s linear infinite;
 }
 
@@ -189,23 +188,17 @@ body.light {
   100% { transform:rotate(360deg); }
 }
 
-/* Status */
+/* success/fail */
 .ok {
   animation:none;
   background:#2ea44f;
   color:white;
-  display:flex;
-  align-items:center;
-  justify-content:center;
 }
 
 .fail {
   animation:none;
   background:#f85149;
   color:white;
-  display:flex;
-  align-items:center;
-  justify-content:center;
 }
 
 /* Auth */
@@ -265,7 +258,6 @@ function toggleMenu(){
  document.getElementById("sidebar").classList.toggle("active");
 }
 
-/* ✅ Proper dark toggle */
 themeToggle.onclick=()=>{
  document.body.classList.toggle("light");
  themeToggle.textContent =
@@ -330,6 +322,7 @@ function exportToExcel(){
  let ws=XLSX.utils.aoa_to_sheet([
   h,...d.map(r=>h.map(x=>r[x]||""))
  ]);
+
  let wb=XLSX.utils.book_new();
  XLSX.utils.book_append_sheet(wb,ws,"Dashboard");
  XLSX.writeFile(wb,"dashboard.xlsx");
@@ -346,6 +339,6 @@ function exportToExcel(){
     with open(html_file, "w", encoding="utf-8") as f:
         f.write(html_final)
 
-    print("✅ Final fixed version generated")
+    print("✅ Inline status fix applied")
 
 md_to_cards("bm.md", "index.html")
