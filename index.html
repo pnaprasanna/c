@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="fav.svg">
+
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <title>Service Dashboard</title>
@@ -24,6 +24,11 @@ body {
   font-size:12px;
   background:var(--bg);
   color:var(--text);
+}
+
+/* ✅ cursor */
+.card, .menu, .sidebar a, .tools span {
+  cursor:pointer;
 }
 
 body.light {
@@ -111,7 +116,7 @@ body.light {
 .label { font-size:9px; color:var(--muted); }
 .value { font-weight:600; }
 
-/* ✅ inline status */
+/* Status */
 .status-inline {
   width:14px;
   height:14px;
@@ -129,7 +134,6 @@ body.light {
   100% { transform:rotate(360deg); }
 }
 
-/* success/fail */
 .ok {
   animation:none;
   background:#2ea44f;
@@ -445,17 +449,19 @@ Password<br>
 
 <script>
 
+/* Sidebar */
 function toggleMenu(){
  document.getElementById("sidebar").classList.toggle("active");
 }
 
+/* Theme */
 themeToggle.onclick=()=>{
  document.body.classList.toggle("light");
  themeToggle.textContent =
  document.body.classList.contains("light") ? "☀️" : "🌙";
 };
 
-/* Auth */
+/* ✅ Auth */
 pwd.onkeyup=async e=>{
  if(e.key==="Enter"){
   let d=new TextEncoder().encode(pwd.value);
@@ -465,9 +471,29 @@ pwd.onkeyup=async e=>{
     auth.style.display="none";
     app.style.display="block";
     checkStatuses();
+    startTimer();  /* ✅ start inactivity */
   } else alert("Wrong password");
  }
 };
+
+/* ✅ 5 MIN INACTIVITY LOGOUT */
+let timer;
+function resetTimer(){
+ clearTimeout(timer);
+ timer=setTimeout(()=>{
+   document.getElementById("app").style.display="none";
+   document.getElementById("auth").style.display="flex";
+   document.getElementById("pwd").value="";
+ },300000); // 5 mins
+}
+
+["mousemove","keydown","scroll","click"].forEach(evt=>{
+ document.addEventListener(evt, resetTimer);
+});
+
+function startTimer(){
+ resetTimer();
+}
 
 /* Search */
 searchBox.onkeyup=e=>{
@@ -513,7 +539,6 @@ function exportToExcel(){
  let ws=XLSX.utils.aoa_to_sheet([
   h,...d.map(r=>h.map(x=>r[x]||""))
  ]);
-
  let wb=XLSX.utils.book_new();
  XLSX.utils.book_append_sheet(wb,ws,"Dashboard");
  XLSX.writeFile(wb,"dashboard.xlsx");
