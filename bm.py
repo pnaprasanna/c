@@ -366,4 +366,3 @@ function exportToExcel(){
     print("✅ Logout + cursor enhancements added")
 
 md_to_cards("bm.md", "index.html")
-``
