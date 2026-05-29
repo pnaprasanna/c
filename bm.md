@@ -1,5 +1,5 @@
 | Info                      | URL                                              | Explanation              | Tags                                                                 |
-|---------------------------|--------------------------------------------------|--------------------------|------------------------------------------------------------------------|
+|---------------------------|--------------------------------------------------|--------------------------|-----------------------------------------------------------|
 | Python Docs               | https://docs.python.org                          |Official Python docs               |     Python, docs                                             |
 | Github | https://github.com | Projects repository with version control | Projects, Repository, Version controls |
 | VScode | https://vscode.dev/github.com/ |The browser integrated online editor | VScode online Editor |
@@ -12,3 +12,4 @@
 | Naravu | https://naravu.github.io | My work | Scripts, Tips, BMs |
 |Online Linux | https://www.onworks.net/ | Free online Linux distros | Linux, Free |
 |Notepad++ | https://notepadplusplus.in/notepad-plus-plus-online/ | Free online notepad++ | Text Editor, Free |
+| Claude code | https://www.aitmpl.com/ | Claude code templates | AI Agents, AI Templates |
