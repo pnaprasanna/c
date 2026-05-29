@@ -1,0 +1,100 @@
+<button class="ai-btn-gradient">
+  <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4-3.9-3.8 5.4-.8z"/>
+  </svg>
+  Ask AI Assistant
+</button>
+
+<style>
+.ai-btn-gradient {
+  background: linear-gradient(135deg, #8a2be2, #4a00e0, #ff007f);
+  background-size: 200% 200%;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4);
+  transition: transform 0.2s ease, background-position 0.5s ease;
+}
+
+.ai-btn-gradient:hover {
+  background-position: right center;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(138, 43, 226, 0.6);
+}
+
+.ai-btn-gradient:active {
+  transform: translateY(1px);
+}
+
+.sparkle-icon {
+  width: 18px;
+  height: 18px;
+}
+</style>
+
+---
+<button class="ai-btn-glow">
+  <span>Generate Draft</span>
+</button>
+
+<style>
+.ai-btn-glow {
+  background: #121214;
+  color: #ffffff;
+  padding: 12px 28px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  background-image: linear-gradient(#121214, #121214), linear-gradient(135deg, #00f2fe, #4facfe, #000);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  cursor: pointer;
+  position: relative;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.ai-btn-glow:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 20px rgba(79, 172, 254, 0.6);
+}
+</style>
+---
+
+<button class="ai-btn-glass">
+  <span class="magic-text">Rewrite with AI</span>
+</button>
+
+<style>
+.ai-btn-glass {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ai-btn-glass .magic-text {
+  background: linear-gradient(90deg, #ff007f, #7928ca, #4facfe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.ai-btn-glass:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(121, 40, 202, 0.5);
+  box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.05);
+}
+</style>

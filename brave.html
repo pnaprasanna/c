@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Brave Search Replica — AI Styled</title>
+  <style>
+    :root{
+      --sidebar-width:220px;
+      --rightpanel-width:240px;
+      --accent:#6200ea;
+      --bg-1:#1a1a40;
+      --bg-2:#0d0d1a;
+      --panel:#1e1e1e;
+      --muted:#bdbdbd;
+      --glass: rgba(255,255,255,0.06);
+      --card-bg: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
+    }
+
+    /* Reset & base */
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    body{
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
+      color:#e8e8e8;
+      /* Firefox-like AI background: deep radial nebula with subtle glow */
+      background:
+        radial-gradient(1200px 600px at 10% 20%, rgba(74,90,255,0.08) 0%, transparent 12%),
+        radial-gradient(900px 500px at 85% 80%, rgba(255,90,180,0.06) 0%, transparent 12%),
+        radial-gradient(circle at 40% 25%, var(--bg-1) 0%, #121226 35%, var(--bg-2) 100%);
+      transition: background .35s ease, color .25s ease;
+    }
+    body.dark{
+      background:
+        radial-gradient(1200px 600px at 10% 20%, rgba(74,90,255,0.04) 0%, transparent 12%),
+        radial-gradient(900px 500px at 85% 80%, rgba(255,90,180,0.03) 0%, transparent 12%),
+        radial-gradient(circle at 40% 25%, #0f0f13 0%, #07070a 60%, #000 100%);
+      color:#f2f2f2;
+    }
+
+    /* Top nav */
+    .navbar{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:10px 14px;
+      background:var(--glass);
+      backdrop-filter: blur(6px) saturate(120%);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.45);
+      z-index:5;
+    }
+    .left-controls{display:flex;align-items:center;gap:10px}
+    .icon-btn{
+      width:34px;height:34px;border-radius:8px;
+      display:inline-flex;align-items:center;justify-content:center;
+      cursor:pointer;font-size:18px;color:var(--muted);
+      background:transparent;border:none;
+      transition:background .18s, color .18s, transform .12s;
+    }
+    .icon-btn:hover{background:rgba(255,255,255,0.03); color:#fff; transform:translateY(-1px)}
+    .search-box{flex:1;display:flex;justify-content:center}
+    .search-form{display:flex;align-items:center;gap:8px}
+    .search-input{
+      width:220px;padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
+      color:inherit;font-size:14px;outline:none;
+      box-shadow: 0 6px 18px rgba(2,6,23,0.45), inset 0 2px 6px rgba(0,0,0,0.6);
+      transition:box-shadow .18s, transform .12s;
+    }
+    .search-input::placeholder{color:rgba(255,255,255,0.55)}
+    .search-input:focus{box-shadow: 0 10px 30px rgba(2,6,23,0.6); transform:translateY(-1px)}
+    /* Search button with magnifier emoji and AI-style hover */
+    .search-submit{
+      padding:8px 12px;border-radius:8px;border:none;background:linear-gradient(180deg,var(--accent), #4a00d6);
+      color:#fff;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:8px;
+      box-shadow: 0 8px 26px rgba(98,0,234,0.18), 0 2px 6px rgba(0,0,0,0.4);
+      transition:transform .12s, box-shadow .18s, filter .18s;
+      font-size:14px;
+    }
+    .search-submit:hover{
+      transform:translateY(-2px) scale(1.02);
+      filter:brightness(1.05);
+      box-shadow: 0 14px 40px rgba(98,0,234,0.22);
+    }
+
+    /* Layout wrapper (content shifts when sidebar opens) */
+    .main-wrap{
+      display:flex;
+      flex:1;
+      transition:margin-left .32s ease;
+      min-height: calc(100vh - 96px); /* account for nav + footer */
+      position:relative;
+      overflow:hidden;
+    }
+    .main-wrap.shifted{margin-left:var(--sidebar-width)}
+
+    /* Left integrated sidebar (pushes content) */
+    .sidebar{
+      position:fixed;
+      top:0;
+      left:calc(-1 * var(--sidebar-width));
+      width:var(--sidebar-width);
+      height:100%;
+      background:var(--panel);
+      color:#eaeaea;
+      box-shadow: 2px 0 18px rgba(0,0,0,0.6);
+      padding:18px 14px;
+      transition:left .32s ease;
+      z-index:6;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .sidebar.open{left:0}
+    .sidebar h3{margin:0 0 6px 0;font-size:15px}
+    .nav-list{display:flex;flex-direction:column;gap:6px}
+    .nav-item{
+      display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;
+      cursor:pointer;color:var(--muted);font-size:14px;
+      transition:background .18s, color .12s;
+    }
+    .nav-item:hover{background:rgba(255,255,255,0.03); color:#fff}
+    .divider{height:1px;background:rgba(255,255,255,0.04);margin:8px 0;border-radius:2px}
+
+    /* Left settings area inside sidebar */
+    .setting-row{display:flex;align-items:center;justify-content:space-between;padding:8px 6px;border-radius:8px}
+    .setting-row .label{font-size:13px;color:var(--muted)}
+    .small-note{font-size:12px;color:#9a9a9a;margin-top:6px}
+
+    /* Accent color swatches */
+    .swatches{display:flex;gap:8px;margin-top:6px}
+    .swatch{width:28px;height:20px;border-radius:6px;cursor:pointer;border:2px solid rgba(0,0,0,0.25)}
+    .swatch[data-color="purple"]{background:#6200ea}
+    .swatch[data-color="blue"]{background:#4a90e2}
+    .swatch[data-color="teal"]{background:#00bfa5}
+    .swatch[data-color="pink"]{background:#ff6fa3}
+
+    /* Right settings panel (hidden until opened) */
+    .settings-panel{
+      position:fixed;
+      top:0;
+      right:calc(-1 * var(--rightpanel-width));
+      width:var(--rightpanel-width);
+      height:100%;
+      background:var(--panel);
+      padding:18px;
+      box-shadow:-2px 0 18px rgba(0,0,0,0.6);
+      transition:right .32s ease;
+      z-index:6;
+      color:#eaeaea;
+    }
+    .settings-panel.open{right:0}
+    .settings-panel h3{margin:0 0 8px 0;font-size:15px}
+
+    /* Slider switch (used for toggles) */
+    .switch{
+      position:relative;width:44px;height:24px;border-radius:24px;background:#333;cursor:pointer;
+      display:inline-block;vertical-align:middle;
+    }
+    .switch .knob{
+      position:absolute;left:4px;top:4px;width:16px;height:16px;border-radius:50%;
+      background:#fff;transition:left .22s ease, background .22s;
+      box-shadow:0 2px 6px rgba(0,0,0,0.5);
+    }
+    .switch.on{background:var(--accent)}
+    .switch.on .knob{left:24px;background:#fff}
+
+    /* Content area (placeholder) */
+    .content{
+      flex:1;
+      padding:28px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+      user-select:none;
+    }
+    .card{
+      width:720px;
+      max-width:92%;
+      padding:36px;
+      border-radius:12px;
+      background:var(--card-bg);
+      box-shadow: 0 18px 40px rgba(2,6,23,0.6);
+      text-align:center;
+    }
+    .card h1{margin:0 0 8px 0;font-weight:600}
+    .card p{margin:0;color:var(--muted)}
+
+    /* Overlay to capture outside clicks */
+    .overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;z-index:5;
+    }
+    .overlay.show{display:block}
+
+    /* Footer */
+    .footer{
+      padding:8px 12px;text-align:center;font-size:12px;color:#bdbdbd;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));
+      box-shadow:0 -2px 8px rgba(0,0,0,0.35);
+    }
+
+    /* Responsive tweaks */
+    @media (max-width:720px){
+      .search-input{width:140px}
+      .card{padding:20px}
+      :root{--sidebar-width:200px}
+    }
+  </style>
+</head>
+<body>
+  <!-- Top navigation -->
+  <header class="navbar" role="banner">
+    <div class="left-controls">
+      <!-- integrated hamburger (AI collapse icon) -->
+      <button class="icon-btn" id="hamburger" aria-label="Toggle navigation">≡</button>
+    </div>
+
+    <!-- compact search -->
+    <div class="search-box" role="search">
+      <form class="search-form" action="https://search.brave.com/ask" method="get" target="_blank" onsubmit="return submitSearch(event)">
+        <input class="search-input" id="searchInput" name="q" type="search" placeholder="Search Brave..." aria-label="Search Brave" />
+        <button class="search-submit" type="submit" aria-label="Search">
+          🔍
+        </button>
+      </form>
+    </div>
+
+    <!-- settings icon (right) -->
+    <div class="right-controls">
+      <button class="icon-btn" id="settingsBtn" aria-label="Open settings">⚙️</button>
+    </div>
+  </header>
+
+  <!-- overlay used to close panels when clicking outside -->
+  <div id="overlay" class="overlay" tabindex="-1" aria-hidden="true"></div>
+
+  <!-- left sidebar (integrated) -->
+  <aside id="sidebar" class="sidebar" aria-hidden="true" aria-label="Navigation and settings">
+    <h3>Navigation</h3>
+    <nav class="nav-list" aria-label="Main navigation">
+      <div class="nav-item" role="button" tabindex="0">🏠 Home</div>
+      <div class="nav-item" role="button" tabindex="0">📄 Docs</div>
+      <div class="nav-item" role="button" tabindex="0">🔗 Links</div>
+      <div class="nav-item" role="button" tabindex="0">❓ Help</div>
+    </nav>
+
+    <div class="divider" aria-hidden="true"></div>
+
+    <h3>Quick Settings</h3>
+
+    <!-- Single dark mode toggle (only here) -->
+    <div class="setting-row" title="Toggle dark mode">
+      <div>
+        <div class="label">Dark Mode</div>
+        <div class="small-note">Switch UI theme</div>
+      </div>
+      <div>
+        <div id="darkSwitch" class="switch" role="switch" aria-checked="false" tabindex="0">
+          <div class="knob"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Font size -->
+    <div class="setting-row" title="Change font size">
+      <div class="label">Font Size</div>
+      <div>
+        <select id="fontSize" style="background:transparent;color:inherit;border-radius:8px;padding:6px;border:1px solid rgba(255,255,255,0.04)">
+          <option value="14">Small</option>
+          <option value="16" selected>Normal</option>
+          <option value="18">Large</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Accent color -->
+    <div class="setting-row" title="Accent color">
+      <div class="label">Accent</div>
+      <div class="swatches" role="list">
+        <div class="swatch" data-color="purple" title="Purple" role="button" tabindex="0"></div>
+        <div class="swatch" data-color="blue" title="Blue" role="button" tabindex="0"></div>
+        <div class="swatch" data-color="teal" title="Teal" role="button" tabindex="0"></div>
+        <div class="swatch" data-color="pink" title="Pink" role="button" tabindex="0"></div>
+      </div>
+    </div>
+
+    <div class="divider" aria-hidden="true"></div>
+
+    <h3>More</h3>
+    <div class="nav-item" role="button" tabindex="0">🔒 Privacy</div>
+    <div class="nav-item" role="button" tabindex="0">⚙️ Search Preferences</div>
+    <div class="nav-item" role="button" tabindex="0">🧾 Clear History</div>
+
+    <div style="margin-top:auto;font-size:12px;color:#9a9a9a">
+      <div style="margin-bottom:6px">Version</div>
+      <div>Brave Search Replica • 2026</div>
+    </div>
+  </aside>
+
+  <!-- right settings panel (hidden until opened) -->
+  <aside id="settingsPanel" class="settings-panel" aria-hidden="true" aria-label="Settings panel">
+    <h3>Quick Toggles</h3>
+
+    <div style="margin-top:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-size:13px;color:var(--muted)">Safe Search</div>
+          <div style="font-size:12px;color:#9a9a9a">Filter explicit results</div>
+        </div>
+        <div id="safeSwitch" class="switch" role="switch" aria-checked="false" tabindex="0"><div class="knob"></div></div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-size:13px;color:var(--muted)">Search History</div>
+          <div style="font-size:12px;color:#9a9a9a">Save recent queries</div>
+        </div>
+        <div id="historySwitch" class="switch" role="switch" aria-checked="false" tabindex="0"><div class="knob"></div></div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-size:13px;color:var(--muted)">Compact UI</div>
+          <div style="font-size:12px;color:#9a9a9a">Reduce spacing for dense layout</div>
+        </div>
+        <div id="compactSwitch" class="switch" role="switch" aria-checked="false" tabindex="0"><div class="knob"></div></div>
+      </div>
+    </div>
+
+    <div style="margin-top:18px">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Appearance</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button id="resetAccent" class="icon-btn" style="width:auto;padding:6px 10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)">Reset Accent</button>
+        <button id="resetAll" class="icon-btn" style="width:auto;padding:6px 10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)">Reset All</button>
+      </div>
+    </div>
+
+    <div style="margin-top:22px;font-size:12px;color:#9a9a9a">
+      These are quick toggles. Use the left panel for theme, font and accent controls.
+    </div>
+  </aside>
+
+  <!-- main content area (shifts when sidebar opens) -->
+  <main id="mainWrap" class="main-wrap" role="main" aria-live="polite">
+    <section class="content" id="contentArea">
+      <div class="card" role="region" aria-label="Main card">
+        <h1>Brave Search Replica</h1>
+        <p>Type a query and press the magnifier. The UI uses an AI-inspired Firefox-like background and integrated side settings.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- footer -->
+  <footer class="footer" role="contentinfo">© 2026 Brave Search Replica</footer>
+
+  <script>
+    // Elements
+    const hamburger = document.getElementById('hamburger');
+    const sidebar = document.getElementById('sidebar');
+    const mainWrap = document.getElementById('mainWrap');
+    const overlay = document.getElementById('overlay');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const darkSwitch = document.getElementById('darkSwitch');
+    const fontSizeSelect = document.getElementById('fontSize');
+    const swatches = document.querySelectorAll('.swatch');
+    const contentArea = document.getElementById('contentArea');
+
+    // Right panel toggles
+    const safeSwitch = document.getElementById('safeSwitch');
+    const historySwitch = document.getElementById('historySwitch');
+    const compactSwitch = document.getElementById('compactSwitch');
+    const resetAccent = document.getElementById('resetAccent');
+    const resetAll = document.getElementById('resetAll');
+
+    // Utility: toggle class and aria
+    function openSidebar(){
+      sidebar.classList.add('open');
+      mainWrap.classList.add('shifted');
+      overlay.classList.add('show');
+      sidebar.setAttribute('aria-hidden','false');
+    }
+    function closeSidebar(){
+      sidebar.classList.remove('open');
+      mainWrap.classList.remove('shifted');
+      overlay.classList.remove('show');
+      sidebar.setAttribute('aria-hidden','true');
+    }
+    function toggleSidebar(){
+      if(sidebar.classList.contains('open')) closeSidebar();
+      else openSidebar();
+    }
+
+    function openSettings(){
+      settingsPanel.classList.add('open');
+      overlay.classList.add('show');
+      settingsPanel.setAttribute('aria-hidden','false');
+    }
+    function closeSettings(){
+      settingsPanel.classList.remove('open');
+      overlay.classList.remove('show');
+      settingsPanel.setAttribute('aria-hidden','true');
+    }
+
+    // Click handlers
+    hamburger.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      // close right panel if open
+      if(settingsPanel.classList.contains('open')) closeSettings();
+      toggleSidebar();
+    });
+
+    settingsBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      // close sidebar if open
+      if(sidebar.classList.contains('open')) closeSidebar();
+      if(settingsPanel.classList.contains('open')) closeSettings();
+      else openSettings();
+    });
+
+    // Overlay closes both panels
+    overlay.addEventListener('click', ()=>{
+      closeSidebar();
+      closeSettings();
+    });
+
+    // Clicking main content closes panels
+    contentArea.addEventListener('click', ()=>{
+      if(sidebar.classList.contains('open')) closeSidebar();
+      if(settingsPanel.classList.contains('open')) closeSettings();
+    });
+
+    // Keyboard accessibility: Esc closes panels
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape'){
+        closeSidebar();
+        closeSettings();
+      }
+    });
+
+    // Dark mode switch (single source)
+    function setDarkMode(on){
+      if(on){
+        document.body.classList.add('dark');
+        darkSwitch.classList.add('on');
+        darkSwitch.setAttribute('aria-checked','true');
+        try { sessionStorage.setItem('bsr_dark','1'); } catch(e){}
+      } else {
+        document.body.classList.remove('dark');
+        darkSwitch.classList.remove('on');
+        darkSwitch.setAttribute('aria-checked','false');
+        try { sessionStorage.setItem('bsr_dark','0'); } catch(e){}
+      }
+    }
+    darkSwitch.addEventListener('click', ()=>{
+      const on = !darkSwitch.classList.contains('on');
+      setDarkMode(on);
+    });
+
+    // Initialize dark mode from session if present
+    try {
+      const savedDark = sessionStorage.getItem('bsr_dark');
+      if(savedDark === '1') setDarkMode(true);
+    } catch(e){/* ignore */ }
+
+    // Font size selector
+    if(fontSizeSelect){
+      fontSizeSelect.addEventListener('change', (e)=>{
+        const size = parseInt(e.target.value,10) || 16;
+        document.body.style.fontSize = size + 'px';
+      });
+      // initialize
+      document.body.style.fontSize = fontSizeSelect.value + 'px';
+    }
+
+    // Accent color swatches
+    swatches.forEach(s => {
+      s.addEventListener('click', ()=>{
+        const c = s.getAttribute('data-color');
+        switch(c){
+          case 'purple': document.documentElement.style.setProperty('--accent','#6200ea'); break;
+          case 'blue': document.documentElement.style.setProperty('--accent','#4a90e2'); break;
+          case 'teal': document.documentElement.style.setProperty('--accent','#00bfa5'); break;
+          case 'pink': document.documentElement.style.setProperty('--accent','#ff6fa3'); break;
+        }
+        // visual feedback
+        swatches.forEach(x => x.style.outline = 'none');
+        s.style.outline = '2px solid rgba(255,255,255,0.08)';
+      });
+      // keyboard support
+      s.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); s.click(); }
+      });
+    });
+
+    // Right panel toggles behavior (simple local state)
+    function toggleSwitch(el){
+      const on = !el.classList.contains('on');
+      if(on) el.classList.add('on'); else el.classList.remove('on');
+      el.setAttribute('aria-checked', on ? 'true' : 'false');
+    }
+    [safeSwitch, historySwitch, compactSwitch].forEach(sw=>{
+      if(sw) sw.addEventListener('click', ()=> toggleSwitch(sw));
+    });
+
+    // Compact UI toggles card padding
+    if(compactSwitch){
+      compactSwitch.addEventListener('click', ()=>{
+        const on = compactSwitch.classList.contains('on');
+        document.querySelectorAll('.card').forEach(c=> c.style.padding = on ? '36px' : '18px');
+      });
+    }
+
+    // Reset buttons
+    resetAccent.addEventListener('click', ()=>{
+      document.documentElement.style.setProperty('--accent','#6200ea');
+      swatches.forEach(x => x.style.outline = 'none');
+    });
+    resetAll.addEventListener('click', ()=>{
+      // reset accent, font, dark mode
+      document.documentElement.style.setProperty('--accent','#6200ea');
+      document.body.style.fontSize = '16px';
+      fontSizeSelect.value = '16';
+      setDarkMode(false);
+      swatches.forEach(x => x.style.outline = 'none');
+    });
+
+    // Accessibility: Enter/Space on nav items triggers click
+    document.querySelectorAll('.nav-item').forEach(item=>{
+      item.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          item.click();
+        }
+      });
+    });
+
+    // Search submit handler (keeps default behavior)
+    function submitSearch(e){
+      // default form submission to Brave Search is allowed
+      return true;
+    }
+
+    // Ensure both panels start hidden
+    closeSidebar();
+    closeSettings();
+  </script>
+</body>
+</html>
