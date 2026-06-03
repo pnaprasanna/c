@@ -1,7 +1,6 @@
 ## Python Commands Workaround for Portable Python
 
 ### To Install Modules
-
 Navigate to your Portable Python directory:
 ```bash
 C:\1DATA\Python3.10\Portable Python-3.10.5 x64\
