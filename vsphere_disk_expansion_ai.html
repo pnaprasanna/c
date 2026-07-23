@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vSphere Disk Expansion Runbook</title>
+<style>
+body{font-family:Segoe UI,Arial,sans-serif;background:linear-gradient(135deg,#0f172a,#111827,#1e293b);color:#fff;margin:0;padding:40px}
+.container{max-width:1000px;margin:auto}
+h1{text-align:center;color:#7dd3fc}
+.card{background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);border:1px solid rgba(125,211,252,.3);padding:20px;margin:18px 0;border-radius:18px;box-shadow:0 0 20px rgba(125,211,252,.15)}
+.step{color:#38bdf8;font-weight:bold;font-size:20px}
+code{display:block;background:#020617;color:#86efac;padding:12px;border-radius:10px;margin-top:10px;white-space:pre-wrap}
+.footer{text-align:center;color:#94a3b8;margin-top:30px}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🚀 vSphere Disk Expansion & LVM Growth Procedure</h1>
+
+<div class="card"><div class="step">Step 1: Expand the Existing Disk in vSphere</div><p>Increase the virtual disk size from the VMware vSphere Console before extending Linux storage.</p></div>
+
+<div class="card"><div class="step">Step 2: Verify Disk Size</div><code>fdisk -l /dev/sdb</code></div>
+
+<div class="card"><div class="step">Step 3: Resize Physical Volume</div><code>pvresize -dv /dev/sdb</code></div>
+
+<div class="card"><div class="step">Step 4: Verify Volume Group Free Space</div><code>vgs</code></div>
+
+<div class="card"><div class="step">Step 5: Extend Logical Volume</div><code>lvextend -L +500G /dev/vg_data_01/lv_pulpdata_01</code></div>
+
+<div class="card"><div class="step">Step 6: Grow XFS Filesystem</div><code>xfs_growfs /dev/mapper/vg_data_01-lv_pulpdata_01</code></div>
+
+<div class="card"><div class="step">Step 7: Verify Updated Capacity</div><code>df -h</code></div>
+
+<div class="footer">AI-Styled Linux Storage Expansion Runbook</div>
+</div>
+</body>
+</html>
