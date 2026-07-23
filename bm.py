@@ -231,7 +231,7 @@ Password<br>
 
 <div class="sidebar" id="sidebar">
   <a href="#">🏠 Home</a>
-  <a href="#">📊 Dashboard</a>
+  <a href="notes/contents.html">📊 Notes</a>
   <a href="#">⚙ Settings</a>
   <a href="#">📁 Projects</a>
 </div>
