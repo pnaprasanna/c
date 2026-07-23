@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RHEL 8 to RHEL 9 Upgrade Guide</title>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+        background: #f4f7fb;
+        color: #333;
+        line-height: 1.6;
+        padding: 40px 20px;
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: auto;
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .header h1 {
+        font-size: 2.5rem;
+        color: #0f172a;
+    }
+
+    .header p {
+        color: #64748b;
+        margin-top: 10px;
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .card h2 {
+        color: #2563eb;
+        margin-bottom: 15px;
+        font-size: 1.3rem;
+    }
+
+    .note {
+        background: #fff7ed;
+        border-left: 5px solid #f97316;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+
+    pre {
+        background: #0f172a;
+        color: #e2e8f0;
+        padding: 18px;
+        border-radius: 10px;
+        overflow-x: auto;
+        font-size: 14px;
+    }
+
+    .footer {
+        text-align: center;
+        color: #64748b;
+        margin-top: 30px;
+        font-size: 0.9rem;
+    }
+
+    code {
+        color: #38bdf8;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>RHEL 8 → RHEL 9 Upgrade Guide</h1>
+        <p>Step-by-step migration process using Leapp</p>
+    </div>
+
+    <div class="card">
+        <h2>1. Install Required Packages</h2>
+        <pre><code>dnf install leapp-upgrade
+dnf install leapp*
+dnf install vdo</code></pre>
+    </div>
+
+    <div class="card">
+        <h2>2. Network Configuration</h2>
+
+        <div class="note">
+            Add the following entry to:
+            <strong>/etc/sysconfig/network-scripts/ifcfg-eth0</strong>
+            <br><br>
+            <code>TYPE=Ethernet</code>
+        </div>
+
+        <br>
+
+        <pre><code>systemctl start NetworkManager
+systemctl enable NetworkManager</code></pre>
+    </div>
+
+    <div class="card">
+        <h2>3. Migrate Network Configuration</h2>
+
+        <pre><code>nmcli connection reload
+nmcli connection show
+nmcli connection migrate eth0
+nmcli -f NAME,UUID,TYPE,FILENAME connection show</code></pre>
+    </div>
+
+    <div class="card">
+        <h2>4. Remove Teaming Packages</h2>
+
+        <pre><code>rpm -qa | grep -E 'teamd|libteam'
+dnf remove teamd libteam
+reboot</code></pre>
+    </div>
+
+    <div class="card">
+        <h2>5. VDO Confirmation</h2>
+
+        <pre><code>leapp answer --section check_vdo.confirm=True</code></pre>
+    </div>
+
+    <div class="card">
+        <h2>6. Pre-upgrade Validation</h2>
+
+        <pre><code>leapp preupgrade</code></pre>
+    </div>
+
+    <div class="card">
+        <h2>7. Perform Upgrade</h2>
+
+        <pre><code>leapp upgrade --no-rhsm --iso /data/iso/rhel9.iso</code></pre>
+    </div>
+
+    <div class="footer">
+        RHEL 8 to RHEL 9 Migration Checklist
+    </div>
+
+</div>
+
+</body>
+</html>
